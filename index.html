@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex,nofollow"><meta name="color-scheme" content="light dark">
+<style>html{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>MyInitiative Gate Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout concept: a control-tower training hall. Top bar with rank/XP, module rail, one working surface.
+   Six level colours form a ramp that follows an initiative from idea (L0) to banked money (L5). */
+:root{
+  --bg:#EEF2F7; --surface:#FFFFFF; --surface2:#F5F8FC; --ink:#0F1C2E; --muted:#58687E; --line:#D6DEE9;
+  --brand:#14325E; --brand-ink:#FFFFFF; --accent:#F0B429; --accent-ink:#2A1D00;
+  --ok:#1B7F55; --ok-bg:#DDF3E8; --bad:#B5373B; --bad-bg:#FAE1E1; --warn-bg:#FFF1CC;
+  --l0:#66768C; --l1:#2F6FBE; --l2:#168A96; --l3:#378F57; --l4:#A8650A; --l5:#7448C4;
+  --shadow:0 1px 2px rgba(15,28,46,.06),0 6px 20px rgba(15,28,46,.06);
+  --f-display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0A1220; --surface:#121D31; --surface2:#182640; --ink:#E8EEF7; --muted:#98A8BF; --line:#263650;
+  --brand:#8DB8FF; --brand-ink:#08162B; --accent:#F2B93B; --accent-ink:#2A1D00;
+  --ok:#52C98D; --ok-bg:#12382A; --bad:#FF8A8D; --bad-bg:#431B20; --warn-bg:#3A2F10;
+  --l0:#7D8DA5; --l1:#4B8BE0; --l2:#2FB0BD; --l3:#4DB071; --l4:#D58A1E; --l5:#9370E0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0A1220; --surface:#121D31; --surface2:#182640; --ink:#E8EEF7; --muted:#98A8BF; --line:#263650;
+  --brand:#8DB8FF; --brand-ink:#08162B; --accent:#F2B93B; --accent-ink:#2A1D00;
+  --ok:#52C98D; --ok-bg:#12382A; --bad:#FF8A8D; --bad-bg:#431B20; --warn-bg:#3A2F10;
+  --l0:#7D8DA5; --l1:#4B8BE0; --l2:#2FB0BD; --l3:#4DB071; --l4:#D58A1E; --l5:#9370E0;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 6px 20px rgba(0,0,0,.3); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55;padding-inline:16px;padding-block:0 64px}
+h1,h2,h3,h4{font-family:var(--f-display);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:clamp(26px,4vw,38px);font-weight:800;letter-spacing:-.01em}
+h3{font-size:21px;font-weight:700}
+h4{font-size:16px;font-weight:700}
+p{margin:0}
+button{font:inherit;color:inherit;cursor:pointer}
+a{color:var(--brand)}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:6px}
+.wrap{max-width:1180px;margin-inline:auto}
+.mono{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+/* top bar */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);margin-inline:-16px;padding-inline:16px}
+.top-in{display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1180px;margin-inline:auto}
+.brand{font-family:var(--f-display);font-weight:800;font-size:19px;display:flex;align-items:center;gap:10px;margin-right:auto}
+.logo{display:grid;grid-template-columns:repeat(3,7px);gap:2px}
+.logo i{display:block;height:20px;width:7px;border-radius:2px}
+.xpbox{display:flex;align-items:center;gap:10px;min-width:0}
+.rank{font-family:var(--f-mono);font-size:12px;font-weight:600;padding:4px 9px;border-radius:99px;background:var(--brand);color:var(--brand-ink);white-space:nowrap}
+.xpbar{width:120px;height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.xpbar b{display:block;height:100%;background:var(--accent);border-radius:99px;transition:width .5s}
+.xpnum{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ibtn{border:1px solid var(--line);background:var(--surface);border-radius:10px;padding:6px 10px;font-size:13px}
+/* layout */
+.shell{display:grid;grid-template-columns:230px minmax(0,1fr);gap:28px;max-width:1180px;margin:22px auto 0}
+nav.rail{display:flex;flex-direction:column;gap:4px;position:sticky;top:78px;align-self:start}
+nav.rail button{display:flex;align-items:center;gap:10px;text-align:left;border:0;background:none;padding:9px 12px;border-radius:10px;font-weight:600;color:var(--muted)}
+nav.rail button:hover{background:var(--surface)}
+nav.rail button[aria-current="page"]{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+nav.rail .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:11px;flex:none;color:#fff}
+nav.rail .dot.on{background:var(--ok);border-color:var(--ok)}
+main{min-width:0}
+@media(max-width:860px){
+  .shell{grid-template-columns:minmax(0,1fr);gap:14px}
+  nav.rail{flex-direction:row;overflow-x:auto;position:static;padding-bottom:6px;gap:6px}
+  nav.rail button{white-space:nowrap;background:var(--surface);flex:none;padding:8px 12px}
+  .xpbar{width:70px}
+}
+.view{display:flex;flex-direction:column;gap:22px}
+.lede{color:var(--muted);max-width:68ch;font-size:17px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);min-width:0}
+.card.flat{box-shadow:none;background:var(--surface2)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.btn{border:0;border-radius:12px;padding:11px 18px;font-weight:700;background:var(--brand);color:var(--brand-ink)}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.btn.gold{background:var(--accent);color:var(--accent-ink)}
+.btn:disabled{opacity:.45;cursor:default}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:99px;font-size:13px;font-weight:600;background:var(--surface2);border:1px solid var(--line)}
+.chip.ap{background:var(--warn-bg);border-color:transparent}
+.chip.none{color:var(--muted)}
+.lv{display:inline-grid;place-items:center;min-width:34px;height:26px;padding:0 8px;border-radius:8px;color:#fff;font-family:var(--f-mono);font-weight:600;font-size:13px}
+.lv0{background:var(--l0)}.lv1{background:var(--l1)}.lv2{background:var(--l2)}.lv3{background:var(--l3)}.lv4{background:var(--l4)}.lv5{background:var(--l5)}
+.sec-title{display:flex;flex-direction:column;gap:6px}
+.tag-src{font-size:12px;color:var(--muted)}
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;align-items:center}
+@media(max-width:860px){.hero{grid-template-columns:minmax(0,1fr)}}
+.hero h1{font-size:clamp(34px,5.4vw,58px);font-weight:800;letter-spacing:-.02em}
+.hero h1 em{font-style:normal;background:linear-gradient(transparent 62%,var(--accent) 62%)}
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:6px;align-items:center}
+.fbar{border:0;color:#fff;padding:11px 14px;text-align:left;display:flex;align-items:center;gap:10px;font-weight:700;border-radius:6px;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,14px 100%);transition:transform .2s,filter .2s;min-height:44px}
+.fbar:hover,.fbar:focus-visible{transform:scale(1.03);filter:brightness(1.1)}
+.fbar span.m{font-family:var(--f-mono);font-size:12px;opacity:.9;margin-left:auto;padding-left:10px;white-space:nowrap}
+.fbar{justify-content:center;gap:10px}
+.fbar b{font-family:var(--f-mono)}
+/* gate track */
+.track{display:flex;align-items:stretch;overflow-x:auto;gap:0;padding-bottom:4px}
+.tnode{flex:1 0 96px;display:flex;flex-direction:column;align-items:center;gap:6px;border:0;background:none;padding:6px 4px;position:relative}
+.tnode::after{content:"";position:absolute;top:26px;left:50%;width:100%;height:4px;background:var(--line);z-index:0}
+.tnode:last-child::after{display:none}
+.tnode .c{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;color:#fff;border:4px solid var(--bg);z-index:1;transition:transform .2s}
+.tnode:hover .c{transform:scale(1.1)}
+.tnode.act .c{outline:3px solid var(--accent);outline-offset:2px}
+.tnode small{font-size:12px;color:var(--muted);text-align:center;line-height:1.2}
+.tnode.act small{color:var(--ink);font-weight:700}
+.tnode.done::after{background:var(--ok)}
+/* checklist */
+.ck{display:flex;flex-direction:column;gap:8px}
+.ck label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;background:var(--surface2);border:1px solid var(--line);cursor:pointer}
+.ck input{margin-top:4px;width:18px;height:18px;accent-color:var(--ok);flex:none}
+.ck label.on{background:var(--ok-bg);border-color:transparent}
+.ck .hint{display:block;color:var(--muted);font-size:14px;margin-top:2px}
+.own{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--muted);text-transform:uppercase;white-space:nowrap;padding-left:8px}
+.group-h{display:flex;gap:10px;align-items:center;margin:14px 0 8px;flex-wrap:wrap}
+.group-h .sb{font-family:var(--f-mono);font-size:12px;font-weight:600;background:var(--ink);color:var(--bg);padding:2px 8px;border-radius:6px}
+.trap{border-left:4px solid var(--bad);background:var(--bad-bg);padding:10px 14px;border-radius:0 10px 10px 0}
+.tip{border-left:4px solid var(--accent);background:var(--warn-bg);padding:10px 14px;border-radius:0 10px 10px 0}
+ul.clean{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px}
+/* tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1px solid var(--line);background:var(--surface);padding:8px 14px;border-radius:99px;font-weight:600;font-size:14px}
+.tab[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+/* matrix */
+.mx{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:9px 10px;text-align:center;border-bottom:1px solid var(--line);font-size:14px}
+th{font-family:var(--f-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+td:first-child,th:first-child{text-align:left}
+th button{border:0;background:none;font:inherit;text-transform:inherit;letter-spacing:inherit;color:inherit;font-weight:700;text-decoration:underline dotted}
+td.hl,th.hl{background:var(--warn-bg)}
+.cellA,.cellS,.cellC{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;font-family:var(--f-mono);font-weight:600;font-size:12px}
+.cellA{background:var(--brand);color:var(--brand-ink)}
+.cellS{background:var(--surface2);border:1px solid var(--line)}
+.cellC{border:1px dashed var(--muted);color:var(--muted)}
+/* flip cards */
+.flip{perspective:900px;border:0;background:none;padding:0;text-align:left;display:block;width:100%}
+.flip .in{display:grid;width:100%;transition:transform .5s;transform-style:preserve-3d}
+.flip.f .in{transform:rotateY(180deg)}
+.flip .fc,.flip .bc{grid-area:1/1;border-radius:16px;padding:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);box-shadow:var(--shadow);min-height:150px;min-width:0}
+.flip .fc{background:var(--surface)}
+.flip .bc{background:var(--brand);color:var(--brand-ink);transform:rotateY(180deg);justify-content:center}
+.bignum{font-family:var(--f-display);font-weight:800;font-size:44px;line-height:1;letter-spacing:-.02em}
+.tcard .bignum{color:var(--brand)}
+/* quiz */
+.qwrap{display:flex;flex-direction:column;gap:16px}
+.prog{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.prog b{display:block;height:100%;background:var(--brand);transition:width .3s}
+.qtext{font-family:var(--f-display);font-size:clamp(20px,2.6vw,26px);font-weight:700;line-height:1.25}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:2px solid var(--line);background:var(--surface);border-radius:14px;padding:13px 16px;font-weight:500;transition:transform .15s,border-color .15s}
+.opt:hover:not(:disabled){border-color:var(--brand);transform:translateX(3px)}
+.opt .k{font-family:var(--f-mono);font-weight:600;color:var(--muted);flex:none}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.fb{padding:14px 16px;border-radius:14px;background:var(--surface2);border:1px solid var(--line)}
+.fb.good{background:var(--ok-bg);border-color:transparent}
+.fb.bad{background:var(--bad-bg);border-color:transparent}
+.ctx{background:var(--surface2);border:1px dashed var(--muted);border-radius:14px;padding:14px 16px}
+.hearts{font-size:20px;letter-spacing:3px;color:var(--bad)}
+.big-score{font-family:var(--f-display);font-size:68px;font-weight:800;line-height:1;color:var(--brand)}
+.shake{animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+/* match */
+.match{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+@media(max-width:640px){.match{grid-template-columns:minmax(0,1fr)}}
+.mitem{border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left;font-size:15px}
+.mitem.sel{border-color:var(--accent);background:var(--warn-bg)}
+.mitem.ok{border-color:var(--ok);background:var(--ok-bg);cursor:default}
+.mcol{display:flex;flex-direction:column;gap:10px}
+/* value capture */
+.vc{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;text-align:center;font-size:13px}
+.vc div.col{padding:8px 4px;border-radius:8px;background:var(--surface2);border:1px solid var(--line)}
+.vc div.bar{grid-row:2;height:30px;border-radius:99px;background:linear-gradient(90deg,var(--l3),var(--l5));display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+/* inputs */
+.field{display:flex;flex-direction:column;gap:4px;min-width:130px}
+.field label{font-size:13px;font-weight:600;color:var(--muted)}
+.field input,.field select{font:inherit;padding:9px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%}
+.pb{position:relative;height:34px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);overflow:hidden}
+.pb .fill{position:absolute;inset:0 auto 0 0;background:var(--ok);transition:width .4s}
+.pb .mark{position:absolute;top:0;bottom:0;width:3px;background:var(--ink)}
+.pb .lab{position:absolute;inset:0;display:flex;align-items:center;padding-inline:14px;font-weight:700;color:#fff;mix-blend-mode:normal}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.badge{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:14px 10px;border-radius:14px;border:1px solid var(--line);background:var(--surface)}
+.badge .ic{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:20px;background:var(--accent);color:var(--accent-ink)}
+.badge.lock{opacity:.5}.badge.lock .ic{background:var(--line);color:var(--muted)}
+.badge small{color:var(--muted);font-size:12px;line-height:1.3}
+details.acc{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:0 16px}
+details.acc summary{cursor:pointer;font-weight:700;padding:13px 0;list-style:none;display:flex;gap:10px;align-items:center}
+details.acc summary::before{content:"+";font-family:var(--f-mono);width:22px;height:22px;border-radius:6px;background:var(--surface2);display:grid;place-items:center;flex:none}
+details.acc[open] summary::before{content:"–"}
+details.acc .bd{padding:0 0 14px 32px;color:var(--ink)}
+.toast{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-weight:700;z-index:50;animation:tin .25s,tout .3s 1.6s forwards}
+@keyframes tin{from{transform:translateY(12px);opacity:0}}
+@keyframes tout{to{opacity:0;transform:translateY(-8px)}}
+canvas#cf{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%}
+@media(max-width:600px){
+  body{font-size:15.5px}
+  .top{padding-block:8px}
+  .top-in{gap:8px}
+  .brand{font-size:16px;width:100%;margin-right:0}
+  .xpbox{flex:1}.xpbar{flex:1;width:auto}
+  .card{padding:15px;border-radius:14px}
+  .btn{padding:12px 16px;min-height:44px}
+  .row>.btn{flex:1 1 auto}
+  .opt{padding:13px 14px;min-height:48px}
+  .tab{padding:10px 14px;min-height:44px}
+  .ck label{padding:12px}
+  .ck input{width:22px;height:22px}
+  .own{display:none}
+  .tnode{flex:1 0 74px}
+  .tnode .c{width:38px;height:38px}
+  .tnode::after{top:24px}
+  .big-score{font-size:52px}
+  .fbar{min-height:46px}
+  .shell{margin-top:12px}
+  nav.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 86px);z-index:15;background:var(--bg);padding-block:6px;margin-inline:-16px;padding-inline:16px;border-bottom:1px solid var(--line)}
+  .toast{left:16px;right:16px;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.sm{font-size:14px;color:var(--muted)}
+.sp{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center}
+</style>
+
+<canvas id="cf" aria-hidden="true"></canvas>
+<header class="top"><div class="top-in">
+  <div class="brand"><span class="logo" aria-hidden="true"><i style="background:var(--l1)"></i><i style="background:var(--l3)"></i><i style="background:var(--l5)"></i></span>MyInitiative Gate Academy</div>
+  <div class="xpbox"><span class="rank" id="rank">L0 Idea Spark</span><div class="xpbar"><b id="xpb" style="width:0"></b></div><span class="xpnum" id="xpn">0 XP</span></div>
+  <button class="ibtn" id="theme" aria-label="Toggle theme">Theme</button>
+</div></header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Modules"></nav>
+  <main id="main"></main>
+</div>
+
+<script>
+"use strict";
+/* ---------- state ---------- */
+var KEY="gate-academy-v1";
+var S={xp:0,seen:{},ck:{},best:{},cards:{},badges:{},missed:[],done:{}};
+try{var raw=localStorage.getItem(KEY);if(raw){S=Object.assign(S,JSON.parse(raw))}}catch(e){}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var RANKS=[[0,"L0 Idea Spark"],[60,"L1 Sizer"],[150,"L2 Business-Case Builder"],[280,"L3 Planner"],[450,"L4 Executor"],[650,"L5 Gatekeeper"]];
+function rankInfo(){var r=0;for(var i=0;i<RANKS.length;i++)if(S.xp>=RANKS[i][0])r=i;var nx=RANKS[r+1];return{name:RANKS[r][1],i:r,pct:nx?(S.xp-RANKS[r][0])/(nx[0]-RANKS[r][0])*100:100}}
+function paintTop(){var r=rankInfo();document.getElementById("rank").textContent=r.name;document.getElementById("xpb").style.width=r.pct+"%";document.getElementById("xpn").textContent=S.xp+" XP"}
+function toast(t){var d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(function(){d.remove()},2000)}
+function addXP(n,why){var before=rankInfo().i;S.xp+=n;save();paintTop();toast("+"+n+" XP"+(why?" · "+why:""));if(rankInfo().i>before){confetti();toast("Rank up: "+rankInfo().name)}checkBadges()}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function $(s,r){return(r||document).querySelector(s)}
+function $$(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+/* ---------- confetti ---------- */
+function confetti(){
+  if(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  var c=document.getElementById("cf"),x=c.getContext("2d");c.width=innerWidth;c.height=innerHeight;
+  var cols=["#2F6FBE","#168A96","#378F57","#F0B429","#7448C4","#E4572E"];
+  var p=[];for(var i=0;i<140;i++)p.push({x:innerWidth/2,y:innerHeight/3,vx:(Math.random()-.5)*14,vy:Math.random()*-12-2,s:Math.random()*8+4,c:cols[i%6],r:Math.random()*6});
+  var t=0;(function f(){x.clearRect(0,0,c.width,c.height);p.forEach(function(q){q.vy+=.3;q.x+=q.vx;q.y+=q.vy;q.r+=.2;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;x.fillRect(-q.s/2,-q.s/4,q.s,q.s/2);x.restore()});if(++t<110)requestAnimationFrame(f);else x.clearRect(0,0,c.width,c.height)})();
+}
+/* ================= CONTENT ================= */
+var GATES=[
+{id:0,code:"L0",name:"Idea",phase:"Bottom-up planning",line:"An idea is generated and inserted in MyInitiative.",appr:[],
+ groups:[{t:"What happens",sb:"",own:"Team / initiative owner",items:[
+  ["The idea is generated and inserted in MyInitiative.","No approval is needed at L0."],
+  ["Sound-check the idea first: effort versus potential benefit.","The kickoff session described collecting brainstorm ideas in a spreadsheet and filtering them before entering viable ones. It avoids admin burden and clutter in the system."],
+  ["Minor, one-time benefits under €100 are generally not entered.","This is a rule of thumb from the kickoff session, not a hard system rule."]]}],
+ traps:["Entering every brainstorm idea. Filter by effort versus benefit first.","Waiting for a perfect business case before logging a worthwhile idea. L0 and L1 are light on purpose."],
+ tip:"Think of L0 as a cheap parking space. It costs almost nothing to enter, and nothing moves forward without more evidence."},
+{id:1,code:"L1",name:"Sizing",phase:"Bottom-up planning",line:"The initiative owner adds the details and a first sizing of the impact.",appr:[],
+ groups:[
+ {t:"Initiative owner",sb:"A",own:"Initiative owner",items:[["The initiative owner is identified and has accepted ownership.","The owner sets up, implements and tracks the initiative. This does not mean every milestone falls to them."]]},
+ {t:"Initiative type",sb:"B",own:"Initiative owner",items:[
+  ["Fill in the initiative type on the Summary tab. It is required to move on.","Cost saving, cost avoidance, revenue generation, non-financial, or balance sheet improvement (financial). The Sep 2026 deck lists five types. The Nov 2025 deck listed four."],
+  ["Cost saving: costs improve versus the baseline.","For Opex the baseline is Actual 2024. For Suscap the baseline is the 3YMP 2025."],
+  ["Cost avoidance: it prevents extra costs versus the baseline.","Deciding not to spend, or postponing, budgeted costs counts as avoidance."],
+  ["Revenue generation: extra revenue versus the Actual 2024 baseline.","Examples: a new service, a higher energy surcharge, invoice completeness control, value-based pricing."],
+  ["Non-financial: a supporting initiative with no direct or quantifiable financial impact.","Leave Estimated Yearly Value and Financial Impact empty, but describe the result well."]]},
+ {t:"Expected impact",sb:"C",own:"Initiative owner",items:[
+  ["Financial types: give a first estimate of the Estimated Yearly Value, in k€.","The unit is thousands of euros. 30 means €30,000."],
+  ["Mark the financial impact as Recurring or One-time.",""],
+  ["Write a description of the impact. It is required to reach L1.","Useful content: the calculation, how the baseline was determined, estimates and sources, clear units, assumptions and substantiation, and references to appendices."]]}],
+ traps:["Typing 30000 in a field measured in k€.","Leaving the description thin. It is mandatory at L1 and useful as a later reference.","Filling in a yearly value for a non-financial initiative. It should stay empty."],
+ tip:"L1 is a first indication. Be honest about how you got the number so that L2 does not start from zero."},
+{id:2,code:"L2",name:"Business case",phase:"Bottom-up planning",line:"The business case and the L4 impact are validated. Money logic is tested here.",appr:["Workstream Lead","Finance approver"],
+ groups:[
+ {t:"Summary",sb:"A",own:"Initiative owner",items:[
+  ["Update the Initiative Description with a clear “From – To”.","Say what changes from the current situation to the new one."],
+  ["Highlight the value assumptions you used and point to appendices where needed.","Still put the most important assumptions and outcomes inside MyInitiative itself."],
+  ["Update the weekly status and give clear next steps.","This is the input for the TO meeting."]]},
+ {t:"Details",sb:"B",own:"Initiative owner",items:[
+  ["Update the estimated dates for L3 and L4 (the implementation and money steps).",""],
+  ["Attach the detailed business case, checked against the “10 tests”.","It should show the current and intended baseline, and the recurring and one-time revenue, savings and implementation costs."],
+  ["Upload supporting documentation, refer to it and explain it.",""]]},
+ {t:"Financial impacts",sb:"C",own:"Initiative owner",items:[
+  ["Fully fill in the financial impact per month and per impact line.",""],
+  ["Add the key assumptions, including the source, in MyInitiative and not only in the attachment.",""]]},
+ {t:"To obtain L2 approval",sb:"",own:"Owner + approvers",items:[
+  ["Check financial reasonableness, value determination and timing together with the WS Lead and the Finance Controller.",""],
+  ["The WS Lead approves the business case (with the “10 tests”).","Owner and WS Lead."],
+  ["Finance approves the initiative and business case.","It tests financial reasonableness, validates how the value was determined, and checks the timing of the forecast baseline and impact. Owner and Finance approver."],
+  ["Submit the initiative to L2 on the Summary screen.",""],
+  ["If applicable, define the right KPIs on the KPIs screen.","These KPIs should guarantee successful implementation and sustainability."]]}],
+ traps:["Assumptions that live only in an attachment. The answers to the checklist must be entirely findable in MyInitiative.","Arriving at Finance unprepared. Approver time is the bottleneck at L2, so aim to get it right the first time.","Over-engineering a simple case. Detail must match the size and complexity of the initiative."],
+ tip:"Run the 10 tests yourself before you submit. Open the 10 Tests module for the games."},
+{id:3,code:"L3",name:"Milestones",phase:"Bottom-up planning",line:"The milestones are defined and planned over time. The plan is approved.",appr:["Workstream Owner","Workstream Lead","TO approver","Finance approver","Sponsor"],
+ groups:[
+ {t:"Summary",sb:"A",own:"Initiative owner",items:[
+  ["Identify the essential stakeholders and check interdependencies with relevant Workstream Leads.","Describe these relationships in the Initiative Description field."],
+  ["Update the weekly status with clear next steps.","Input for the TO meeting."],
+  ["Assess the FTE impact and send the details to TO / HR, if applicable.",""]]},
+ {t:"Details and Financial impacts",sb:"B C",own:"Initiative owner",items:[
+  ["Update the estimated L3 and L4 dates.",""],
+  ["Keep monthly financial impact estimates updated whenever the business case changes.",""]]},
+ {t:"Milestones",sb:"D",own:"Initiative owner",items:[
+  ["Milestones must bring the initiative all the way to L4.",""],
+  ["Include a milestone for a thorough risk assessment if material risks are introduced.","Examples: safety, legal, compliance, trade union."],
+  ["Plan a milestone at least every 2 to 4 weeks. Usually it is every 1 to 2 weeks.",""],
+  ["Confirm timing and responsibility with each Milestone Owner.","The milestone owner does not need to be the initiative owner. The initiative owner stays responsible for overall delivery."]]},
+ {t:"KPIs",sb:"E",own:"Initiative owner",items:[["If applicable, define the right KPIs on the KPIs screen.","Their purpose is successful implementation and sustainability."]]},
+ {t:"To obtain L3 approval",sb:"",own:"Owner + approvers",items:[
+  ["Check in advance with the Sponsor before moving to L3.",""],
+  ["Validate plans with the responsible WS Lead and assess financial changes with the Finance approver.",""],
+  ["Finance approves after validating the implementation plan (milestones), the financial impact and the tracking method.",""],
+  ["Sponsor, WS Lead and TO approve after validating the plan, the financial impact and the delivery sequence with other initiatives in the workstream.",""],
+  ["The TO approver checks the quality of the implementation plan (milestones) and the business plan.",""],
+  ["Submit the initiative to L3 on the Summary screen.","The planned impact is recorded at L3 approval and becomes not editable."]]}],
+ traps:["A plan with big gaps between milestones. Aim for a milestone at least every 2 to 4 weeks.","Forgetting the risk-assessment milestone when safety, legal, compliance or trade union risks exist.","Surprising the Sponsor. Check with them before you submit."],
+ tip:"Between L3 and L4 the milestones are your heartbeat. If every milestone is complete, the initiative should reach L4."},
+{id:4,code:"L4",name:"Implemented",phase:"Implementation",line:"Fully executed, including the money step. Only normal daily business is left to do.",appr:["Workstream Lead"],
+ groups:[
+ {t:"Screens",sb:"",own:"Initiative owner",items:[
+  ["Financial Impact screen: fill it out completely with the latest actuals and forecast.",""],
+  ["Make the monthly forecast line match the forecast run-rate.",""],
+  ["Milestones screen: mark completed milestones “complete” and update the timing of remaining ones.","Remaining milestones may exist, but they must not be essential to realizing the benefit."],
+  ["KPIs screen: add new or revised KPIs.",""],
+  ["Details screen: upload proof the money step is done, for example a screenshot of a new contract.",""],
+  ["Give clear guidance for navigating the attached documents, with an attachment or Google link.",""]]},
+ {t:"Process before submitting",sb:"",own:"Initiative owner",items:[
+  ["Complete all milestones needed to deliver the defined value.",""],
+  ["Define a clear method for tracking value and KPIs, including who does it, for L5.",""],
+  ["Submit the initiative to L4.",""]]},
+ {t:"Workstream Lead confirms",sb:"",own:"Workstream Lead",items:[
+  ["Business-as-usual processes, policies or systems have been changed.",""],
+  ["Safeguards exist to prevent or react to value leakage.",""],
+  ["Financial assumptions are correct and impacts are realistic.","Value has not changed since the bankable L3, or the change is explained. KPIs and numbers link to the financial impact. The forecast is updated."]]},
+ {t:"Key principles",sb:"",own:"All",items:[
+  ["L4 is reached when the initiative is fully executed, including the money step.","No further action beyond normal daily business is needed to keep building the benefit."],
+  ["L2 valuation principles still apply, and benefits come from the owner’s actions.","No free kicks or penalties from exogenous events."],
+  ["L4 is validated on proof of the sequence of discrete actions.","Examples: a new contract is signed and the old one terminated; a termination notice is given to an employee; procedures change with control mechanisms that ensure compliance."]]}],
+ traps:["Calling it done because work is “mostly finished”. The money step needs proof.","Claiming a gain from something outside your control, such as a market price drop.","Moving an initiative back a stage just to re-forecast. That is not required."],
+ tip:"Think “bankable”. L4 means the sequence of actions that creates the money is locked in. L5 means the money has shown up."},
+{id:5,code:"L5",name:"Validated",phase:"Implementation",line:"The sustainable financial impact is achieved, updated in MyInitiative and validated.",appr:["Finance approver"],
+ groups:[
+ {t:"Initiative owner",sb:"",own:"Initiative owner",items:[
+  ["Identify and verify all benefits, implementation costs (if any) and KPIs. Explain every variance versus L4.",""],
+  ["Make sure administration and tools exist to measure actuals. Actuals and KPIs are updated monthly for all initiatives.",""],
+  ["Identify and log new initiatives that came out of this one.",""],
+  ["Provide evidence of the run-rate value impact during at least two cycles of normal business, with an attachment or Google link.",""],
+  ["Provide evidence of the benefit and the implementation costs and upload it to MyInitiative.",""],
+  ["Submit for L5 approval and schedule a meeting with the Finance approver where appropriate.",""]]},
+ {t:"Finance approver",sb:"",own:"Finance approver",items:[
+  ["Confirm value accrues at the expected run-rate for at least two cycles, then approve for L5.","Two months of logged impact for monthly items, or two quarters for quarterly items, or 6 months, whichever is shorter."]]},
+ {t:"Why L5 matters",sb:"",own:"All",items:[
+  ["Make sure the benefit hits the bottom line (money).",""],
+  ["Confirm the changes are sustainable.",""],
+  ["Use the results and processes to find more improvement opportunities.",""],
+  ["Enablers face the same L5 requirement: the initiative delivers recurring benefits.","Be able to prove your impact is sustainable."]]}],
+ traps:["Rates agreed but invoices still show the old rate.","Savings that vanish after a substitution effect, such as new hires at the same cost or a fixed-fee bid with higher implicit rates.","Evidence with only one cycle of data."],
+ tip:"A savings claim is only real when it shows up in system data, invoices, headcount or payments."}
+];
+var ROLES=[
+ ["Initiative Owner","Sets up, implements and tracks the initiative. Works like a project manager and keeps MyInitiative updated."],
+ ["Workstream Lead","Validates the business case against the 10 tests (L2), validates plans (L3) and approves L4."],
+ ["Finance approver","Tests financial reasonableness, value determination and timing (L2), validates tracking (L3) and approves L5 after a stable run-rate."],
+ ["Workstream Owner","Oversees the workstream’s progress and interacts with the initiative owners. Appears in the L3 approvals."],
+ ["TO approver","Checks the quality of the implementation and business plan at L3. The TO meeting uses the weekly status. Receives FTE impact details."],
+ ["Sponsor","Is checked in advance before L3. Approves L3 together with the WS Lead and TO on the plan, financials and delivery sequence."],
+ ["Milestone Owner","Agrees timing and responsibility for a milestone and updates its status every week."]
+];
+var MATRIX={cols:["Initiative owner","WS Lead","Finance approver","WS Owner","TO approver","Sponsor"],
+ rows:[["L0",["S","","","","",""]],["L1",["S","","","","",""]],["L2",["S","A","A","","",""]],["L3",["S","A","A","A","A","A"]],["L4",["S","A","","","",""]],["L5",["S","","A","","",""]]]};
+var TESTS=[
+ ["Baseline","Does the baseline reflect the “do nothing” scenario?","Savings measured against a baseline that already includes the change."],
+ ["Identification of value","Can we clearly see how the business will change and how this will generate value?","“Efficiency will improve”, with no description of what actually changes."],
+ ["Logic & assumptions","Is the value calculated with logic, verifiable assumptions and consistent parameters?","Two tabs that use different inflation rates."],
+ ["Valuation of impact","Are all financial effects (one-time and recurring, costs and revenue) included?","Savings counted while a recurring licence fee is left out."],
+ ["Timing of impact","Does it deliver value and cover implementation costs (if any) within 24 months, and is it correctly phased over time?","A full year of savings booked from January when the contract starts in July."],
+ ["Allocation of impact","Is the build-up realistic and correctly categorised (recurring versus one-time, revenue versus costs)?","A one-time rebate booked as a recurring saving."],
+ ["Scaling of benefit","Is the fixed-variable cost allocation reasonable, so that the benefit scales correctly when volume changes?","Savings assumed to scale linearly when most of the cost is fixed."],
+ ["Eliminate double counting","Does it avoid duplicating effects from other initiatives or effects already in the baseline?","The same contract saving sits in two initiatives in one workstream."],
+ ["Risks","Are the most important risks identified and addressed? Have lessons from previous initiatives been integrated?","A reorganisation plan with no mention of the required trade union consultation."],
+ ["Readiness to implement","Are resources and skills required? Is there a plan to engage the essential stakeholders?","Nobody is assigned to run it, and the site team has not been told."]
+];
+var TESTCASES=[
+ ["The saving is measured against a baseline in which the team has already switched to the cheaper supplier.",0],
+ ["The business case says “we will work smarter” without describing what changes day to day.",1],
+ ["One tab assumes 4% inflation and another tab assumes 2% for the same contract.",2],
+ ["The saving is counted, but the one-time implementation cost and a new recurring service fee are not.",3],
+ ["The entire annual saving is booked from January, although the new contract only starts in July.",4],
+ ["A one-time rebate from the supplier is entered as a recurring yearly saving.",5],
+ ["Savings are scaled linearly with volume, although most of the cost is fixed and volume is expected to drop.",6],
+ ["The same contract renegotiation already counts as a saving in another initiative in the same workstream.",7],
+ ["The plan involves a role change that needs a trade union consultation, and last year’s similar attempt was ignored.",8],
+ ["No owner has been assigned to run the initiative, and the site operations team has not been informed.",9]
+];
+var BLOCKERS=[
+ ["A rate reduction is negotiated, but invoices do not reflect the lower rate.","Compare actual invoices to the new rate card."],
+ ["Vendors cut labour costs but now bid fixed fees with higher implicit rates.","Look at total price per job, not at the headline rate."],
+ ["Contractor numbers fall, but new staff are hired at the same or higher cost.","Net the new hires against the reduction before claiming it."],
+ ["A cheaper vendor is hired, but equipment from the old vendor stays on site, so you pay twice.","Confirm the old contract and equipment are really gone."],
+ ["A policy changes but is not enforced, so no measurable savings follow.","Find the control that makes the policy bite, and show its data."],
+ ["A working capital target is met but not maintained for a meaningful period.","Show the level holding across cycles, not at one date."],
+ ["A pricing initiative lands but demand volumes drop, so the total effect is zero or negative.","Track price and volume together."],
+ ["Availability or throughput is improved, but the extra production never materialises.","Show the extra output being produced and sold."],
+ ["New commercial contracts are executed, but sustainable procurement is not achieved.","Show actual purchases flowing through the new contracts."]
+];
+var EVIDENCE=[
+ ["Price reduction","Copy of the contract variation plus an invoice"],
+ ["Top-down controls (e.g. visa, business travel access)","System-generated report showing a monthly trend of cost reduction"],
+ ["Reduction in downtime or maintenance","System data showing performance change in line with target KPIs"],
+ ["Fewer contractor personnel deployed","Monthly headcounts or another HR report showing the reduction"],
+ ["Project deferral","Written proof of the approved deferral decision"],
+ ["Reduction in activities or demand","System data showing a monthly trend in cost or activity, in line with target KPIs"],
+ ["Price increase at customer XYZ","Receipt of the higher payment"],
+ ["New business","Reports showing volume and price for the new volume"],
+ ["Min-max inventory adjustment","Three months of system data showing the revised maximum levels were not exceeded"]
+];
+var MILEX=[
+ {n:"Price negotiation with a customer",l4:["New price terms agreed with the customer","All involved parties informed","Systems adapted to the new contract terms"],l5:["The price increase is in effect","Sales at the higher price realised during one payment cycle (monthly or otherwise)"]},
+ {n:"Price negotiation with a supplier",l4:["The new price is “on the books”","Contract signed and executed","System updated with the new price information"],l5:["New prices are in effect","A track record that invoices comply with them for at least one month, based on back office checks"]},
+ {n:"Change of supplier or specification",l4:["Transition to the new supplier or product is confirmed","New contract signed and the current supplier informed","New specification or supplier qualified by site and customers where needed","System updated with new prices and material numbers where needed"],l5:["New supplier or specification is fully phased in","A track record of at least one month of use, in invoices checked in the system by the back office"]},
+ {n:"Sale of assets (e.g. land)",l4:["The sale of the assets is contracted","Purchaser due diligence completed and sales contract signed"],l5:["Payment received (or the first instalment)","Property tax payments cease"]}
+];
+var VC=[
+ {n:"Phase in a new contractor with a better value proposition",start:0,txt:"Value capture starts in L3, once you start using the cheaper contractor in parallel. The bankable L4 step is complete when a new policy is announced, systems change so the old contractor cannot be used, or budgets change. L5 arrives after the current contractor is fully phased out."},
+ {n:"Change the policy for business class flights",start:1,txt:"Value capture starts around the time the bankable L4 step is completed: the measure is announced, systems are modified to prevent booking business class, the policy is issued and budgets are adjusted."},
+ {n:"Negotiate a lower rate for a contract",start:2,txt:"The bankable L4 step is complete when the contract is signed and new prices are loaded, while waiting for the start date. Value capture starts, and L5 is reached, after the new prices take effect on the effective date of the contract."}
+];
+var NUMS=[
+ ["6","stages","L0 to L5. Idea, sizing, business case, milestones, implemented, validated."],
+ ["2","stages need no approval","L0 and L1."],
+ ["5","initiative types (2026)","Cost saving, cost avoidance, revenue generation, non-financial, balance sheet improvement. The Nov 2025 deck had four."],
+ ["10","tests at L2","Applied by Finance approvers and Workstream Leads. The detail level scales with the size of the initiative."],
+ ["24","months","Test 5: value delivered and implementation costs covered within 24 months."],
+ ["2–4","weeks","Maximum gap between milestones at L3. Usually there is one every 1 to 2 weeks."],
+ ["2","cycles","L5 run-rate evidence. Two months for monthly items, or two quarters for quarterly items."],
+ ["6","months","L5 cap: two cycles or 6 months, whichever is shorter."],
+ ["€100","threshold","Minor one-time benefits under this are generally not entered into the system."],
+ ["25k","per business unit","Proposed contribution to fund ongoing development adjustments to the tool."],
+ ["2028","horizon","Benefits are tracked until 2028. The program horizon in the demo was December 2028."],
+ ["3,000","existing initiatives","Already in the Dutch instance. Data is partly Dutch and uses terminal-specific language, so it needs clustering."]
+];
+var RECAP=[
+ ["How are initiatives structured in the tool?","Initiatives move through the stages in MyInitiative from L0 (ideation) to L5 (validated benefit). Benefits are tracked until 2028 to measure total program value."],
+ ["Do we need a business case for an obvious initiative?","Keep it proportional. Calculating the saving of ending a 100k contract can be a simple case. More valuable or complex initiatives need more detail."],
+ ["What is a workstream and how many should we have?","A functional grouping of initiatives (maintenance, customer service) that follows the management structure and initiative volume. Use the shared templates, request new ones only when strictly necessary, and keep them few."],
+ ["Should we create workstreams for departments or head office?","No. Past issues came from separate workstreams for departments and head office. Use location attributes instead. Track organisational remodelling under overhead, or within the maintenance and capital systems workstreams."],
+ ["What exactly is an initiative owner?","Similar to a project manager. They execute the initiative and keep MyInitiative updated. They are not just the person who had the idea."],
+ ["Can we start entering initiatives while consultants run a full-potential phase?","Starting in parallel is feasible. Setting targets without the full-potential data can be challenging. One team kept a local spreadsheet until the formal planning phase, then migrated into MyInitiative."],
+ ["What did the demo show?","An example: insource cleaning by buying a €6K high-pressure cleaner. It covered title, business unit, site, workstream, primary and backup owner and access level (general to confidential). Then cost saving as type, a rough 30K per year impact, a from-to description, and Oracle-aligned opex lines with an end date at the program horizon (December 2028). Then monthly impacts of 2K, implementation cost of 6K, attachments or linked sheets, L2 and L3 dates, and submission for L2 approval by the finance approver and workstream lead."],
+ ["How should we handle double counting with the budget?","Be careful with initiatives already in the budget or already in execution. The L2 test 8 exists for this."],
+ ["How do I get access?","Requests go through ServiceNow. The form originally limited organisation choice to the Netherlands and was being updated for US and international users. The Sep 2026 deck links request forms for Singapore, the US and Brazil. The Belgium link is blank in the deck."],
+ ["How will training work?","Expert users are trained first and then train their own organisations. The Dutch team can help set up experts but cannot train everyone. Idea: sit one-on-one with initiative owners for their first entries. Engineers adapt fast, operators and shift leaders need step-by-step guidance."],
+ ["Who pays for development?","Development so far was funded by the Dutch business unit. A contribution of about 25k per business unit was proposed. There are no fixed fees, only costs for desired developments."],
+ ["How is adoption enforced?","Management support at all levels is essential. Tool usage can be tied to bonuses so substantive initiatives are recognised."]
+];
+var CHANGES=[
+ ["Initiative types","Nov 2025 listed four types. Sep 2026 adds Balance Sheet improvement (financial)."],
+ ["L4 and L5 content","The Nov 2025 deck only covered L1 to L3. The Sep 2026 deck adds full L4 and L5 definitions, checklists, examples and proof of impact."],
+ ["Access","Sep 2026 adds request forms for Singapore, the US and Brazil (Belgium blank)."],
+ ["Naming","Nov 2025 says “Finance”. Sep 2026 says “Finance approver” and adds the approvals diagram and the Workstream Owner."]
+];
+/* ---------- QUIZ BANK ---------- */
+// [tags, question, options, correctIndex, why]
+var QB=[
+ [["big","num"],"How many stages are in the stage gate process?",["Four, L1 to L4","Five, L1 to L5","Six, L0 to L5","Seven, L0 to L6"],2,"The stages run from L0 (idea) to L5 (validated benefit)."],
+ [["big","roles"],"Which stages need no approval?",["L0 and L1","L1 and L2","Only L0","L0, L1 and L2"],0,"L0 and L1 need no approval. Approvals start at L2."],
+ [["l2","roles"],"Who approves L2?",["Workstream Lead and Finance approver","TO approver only","Sponsor and TO approver","Workstream Owner only"],0,"L2 needs the Workstream Lead and the Finance approver."],
+ [["l3","roles"],"Which approver is part of L3 but not L2?",["Finance approver","Workstream Lead","TO approver","Initiative owner"],2,"L3 adds the TO approver, who checks the quality of the plan. The diagram also adds the Workstream Owner."],
+ [["l4","roles"],"Who approves L4?",["Finance approver","Workstream Lead","Sponsor","TO approver"],1,"The Workstream Lead confirms the milestones are complete and the process, safeguards and assumptions are right."],
+ [["l5","roles"],"Who approves L5?",["Workstream Lead","Sponsor","Finance approver","Initiative owner"],2,"Finance validates that a stable run-rate has been reached."],
+ [["big","num","meeting"],"Until when are benefits tracked in the program?",["2026","2027","2028","2030"],2,"Benefits are tracked until 2028. The demo used a December 2028 end date."],
+ [["roles","meeting"],"What is an initiative owner closest to?",["An idea submitter","A project manager who executes and keeps MyInitiative updated","A financial auditor","A tool administrator"],1,"The kickoff clarified that the owner executes and updates the tool, not merely originates ideas."],
+ [["roles","l3"],"Does the initiative owner personally own every milestone?",["Yes, always","No. Milestone owners can differ, but the initiative owner stays responsible for overall delivery","No. The Workstream Lead owns all milestones","Only the L4 milestones"],1,"Best practice: milestone owners update status weekly. The initiative owner remains responsible for delivery."],
+ [["types","l1"],"Which type is a decision not to spend or to postpone budgeted costs?",["Cost saving","Cost avoidance","Revenue generation","Non-financial"],1,"Postponing or cancelling budgeted spend is an avoidance."],
+ [["types","l1","num"],"What is the baseline for an Opex cost saving?",["Budget 2026","Actual 2024","3YMP 2025","Forecast of last month"],1,"For Opex the baseline is Actual 2024. For Suscap it is the 3YMP 2025."],
+ [["types","l1"],"What is the baseline for a Suscap cost saving?",["Actual 2024","3YMP 2025","Last quarter","Zero"],1,"Suscap uses the 3YMP 2025."],
+ [["types","l1"],"For a non-financial initiative, what do you do with Estimated Yearly Value?",["Estimate it anyway","Put 1","Leave it empty and describe the impact well","Copy it from a similar initiative"],2,"Non-financial initiatives should not fill in the yearly value or recurring or one-time, but need a good description of the result."],
+ [["l1","num"],"In what unit is Estimated Yearly Value entered?",["Euros","Thousands of euros (k€)","Millions of euros","Percent of baseline"],1,"The field is in k€. 30 means €30,000."],
+ [["l1"],"Which three things must a financial initiative show to reach L1?",["Milestones, KPIs and risks","Estimated yearly value, recurring or one-time, and a description of impact","A signed contract and an invoice","Finance approval and sponsor approval"],1,"Those three. The description should explain how you derived the number."],
+ [["l1"],"Which of these is NOT in the guidance for the impact description?",["Calculation of the impact","Determination of the baseline","Assumptions and substantiation","The names of everyone at the brainstorm"],3,"The guidance lists calculation, baseline, estimates and sources, units, assumptions and appendices."],
+ [["types","num"],"How many initiative types does the Sep 2026 deck list?",["Three","Four","Five","Six"],2,"Five, including Balance sheet improvement (financial)."],
+ [["l2"],"What is the key attachment at L2?",["A signed contract","The detailed business case, checked against the 10 tests","A photo of the site","The milestone plan"],1,"The business case with the baseline, recurring and one-time effects and implementation costs."],
+ [["l2"],"Test 1 asks whether the baseline reflects what?",["Last year’s budget","The “do nothing” scenario","The best-case scenario","The competitors’ prices"],1,"The baseline must show what happens if you do nothing."],
+ [["l2","num"],"Test 5 checks that value is delivered and costs are covered within how long?",["12 months","18 months","24 months","36 months"],2,"24 months, and the impact must be correctly phased over time."],
+ [["l2","num"],"How many tests do approvers apply at L2?",["5","7","10","12"],2,"The 10 tests: baseline, identification of value, logic and assumptions, valuation, timing, allocation, scaling, double counting, risks, readiness."],
+ [["l2"],"Which test checks that the initiative does not repeat effects from other initiatives?",["Scaling of benefit","Allocation of impact","Eliminate double counting","Timing of impact"],2,"Test 8."],
+ [["l2"],"Where must the key assumptions be recorded?",["Only in the attachment","In MyInitiative, not only in the attachment","In an email to Finance","In the Sponsor’s notes"],1,"The answers to the checklist must be entirely findable in MyInitiative."],
+ [["l2","l3"],"What must be updated weekly, with clear next steps?",["The business case","The weekly status","The baseline","The org chart"],1,"It is input for the TO meeting."],
+ [["l2"],"At what granularity is the financial impact filled in at L2?",["Per year in total","Per quarter","Per month per impact line","Only at L5"],2,"Fully fill in the financial impact per month and per impact line."],
+ [["l2","roles"],"Who must schedule sufficient time with the Financial Approver at L2?",["Initiative owners","Workstream Leads","The TO approver","The Sponsor"],1,"Because approver time is the bottleneck, Workstream Leads need to plan it. Initiative owners should aim to get it right the first time."],
+ [["l2"],"What is the From – To in the description?",["The start and end dates","The current situation and the new situation after the change","The old and new owner","The old and new budget"],1,"It describes what changes."],
+ [["l3","num"],"How often should milestones be planned at L3?",["At least every 2 to 4 weeks, usually every 1 to 2","Every quarter","Once at the end","Only at L4"],0,"At least every 2 to 4 weeks, and usually 1 to 2 weeks apart."],
+ [["l3"],"When do you need a risk-assessment milestone?",["Always","If the initiative introduces material risks, such as safety, legal, compliance or trade union","Only for revenue initiatives","Never, risk is covered at L2"],1,"A thorough risk assessment milestone is needed when material risks appear."],
+ [["l3","roles"],"What must be sent to TO / HR at L3, if applicable?",["The invoice","FTE impact details","The weekly status only","The L5 evidence"],1,"Assess the FTE impact and send the details."],
+ [["l3","roles"],"Who do you check with in advance before moving to L3?",["The Sponsor","The auditor","The supplier","Nobody"],0,"Check in advance with the Sponsor."],
+ [["l3"],"Milestones at L3 must bring the initiative to which stage?",["L2","L3","L4","L5"],2,"The milestones plan the path to L4."],
+ [["l3","l4"],"What is recorded at L3 approval and becomes not editable?",["The initiative owner","The planned impact","The milestone dates","The description"],1,"The planned impact is recorded when approved for L3. You then track actuals and a forecast."],
+ [["l3"],"What does Finance validate at L3?",["Only the L5 proof","The implementation plan, the financial impact and the tracking method","The initiative title","The stakeholder list"],1,"Finance approval follows validation of milestones, impact and tracking method."],
+ [["l4"],"When is an initiative at L4?",["When it is approved at L2","When it is fully executed including the money step, so only daily business is left","When the first invoice arrives","When milestones are planned"],1,"No further action beyond normal daily business may be needed to realize the benefit."],
+ [["l4"],"Which is an example of proof of the money step at L4?",["A screenshot of a new contract","A promise from the owner","A meeting invite","A draft business case"],0,"Upload proof such as a screenshot of a new contract to the Details screen."],
+ [["l4"],"Which principle applies to L4 benefits?",["Benefits can come from any external event","Benefits must result from the owner’s actions, with no free kicks or penalties from exogenous events","Only revenue counts","Benefits are not validated"],1,"The L2 valuation principles still apply."],
+ [["l4"],"What does the Workstream Lead check at L4?",["That business-as-usual processes changed, safeguards exist against value leakage, and assumptions are correct","Only the color of the dashboard","The L5 evidence","The Sponsor’s calendar"],0,"Plus that value has not changed since the bankable L3, or that any change is explained."],
+ [["l4","l5"],"A contract rate negotiation: when is L4 reached and when does value capture start?",["L4 at contract signed and new prices loaded. Value capture and L5 start when prices take effect","Value capture starts at L3","L4 at the first invoice","L4 and L5 are reached on the same day"],0,"The bankable step comes first, then the effective date starts value capture."],
+ [["l4"],"A new cheaper contractor is used in parallel before L4. Where does value capture start?",["L3","L4","L5","After 2028"],0,"Value capture can start before L4 when you phase in the new supplier in parallel."],
+ [["l4"],"Changing the business class flight policy: when does value capture start?",["At L1","Around the bankable L4 step, when the measure is announced and systems or budgets change","At L5 only","Never"],1,"The measure announced, systems modified, policy issued and budgets adjusted."],
+ [["l4","l5"],"Actual impact comes in a bit under forecast during implementation. What do you do?",["Always move the initiative back a stage","Re-forecast with Finance. Move back only if core validation assumptions need revising","Delete the initiative","Ignore it"],1,"The Initiative Owner works with Finance to understand variations and updates the forecast."],
+ [["l4"],"A milestone date change affects the critical path to L4. What do you do immediately?",["Wait for the TO meeting","Change the Workstream status to “some issues” or “Leadership attention”","Delete the milestone","Move back to L2"],1,"Milestones are not locked, but the TO tracks changes, especially delays."],
+ [["l5","num"],"What is the minimum run-rate evidence for L5?",["One day of data","At least two cycles of normal business processes","One invoice","A promise from the supplier"],1,"Two months for monthly items, or two quarters for quarterly items, or 6 months, whichever is shorter."],
+ [["l5","num"],"For a quarterly item, how much logged impact does Finance need for L5?",["1 quarter","2 quarters, which is 6 months, the cap","4 quarters","1 month"],1,"Two cycles or 6 months, whichever is shorter. Two quarters equals 6 months."],
+ [["l5"],"Which is a classic L5 blocker?",["A rate reduction is negotiated, but invoices do not reflect the lower rate","The owner changed jobs","A weekly status was updated","The milestone owner is a different person"],0,"If the money never shows in invoices, L5 cannot be validated."],
+ [["l5"],"What else does the owner do at L5, beyond evidence?",["Identify and log new initiatives identified as a result","Delete all milestones","Change the baseline","Nothing"],0,"They also explain variances versus L4 and make sure monthly actuals and KPIs are updated."],
+ [["l5"],"What evidence fits a reduction in contractor personnel?",["A copy of an invoice","Monthly headcounts or another HR report","A photo","A meeting minute"],1,"Match the evidence to the type of impact."],
+ [["l5"],"What evidence fits a price increase at a customer?",["Receipt of the higher payment","Written deferral decision","A verbal agreement","A planning slide"],0,"Higher payments show the benefit hits the bottom line."],
+ [["l5"],"What evidence fits a min-max inventory adjustment?",["Three months of system data showing revised maximum levels have not been exceeded","A single stock count","An email","A new policy only"],0,"The proof is in system data over time."],
+ [["l5"],"What is the L5 requirement for enablers?",["None","Same general L5 requirements. The initiative delivers recurring benefits","Only a description","Sponsor approval only"],1,"Be able to prove the impact is sustainable."],
+ [["meeting","l1"],"Is a €60 one-time benefit generally entered in the tool?",["Yes, always","Generally no. Minor one-time benefits under €100 are not required","Only with Finance approval","Only at L5"],1,"Sound-check ideas to avoid admin burden."],
+ [["meeting"],"How should brainstorm ideas be handled before entering them?",["Enter them all immediately","Collect in a spreadsheet and filter on effort versus potential benefit","Send them to the Sponsor","Ignore unconventional ideas"],1,"Only viable proposals go into MyInitiative."],
+ [["meeting"],"How should you handle different locations or departments in workstreams?",["Create a separate workstream per department and head office","Use location attributes instead of separate workstreams","Create one per employee","Create them at L5"],1,"Past issues came from separate workstreams for departments and head office."],
+ [["meeting","num"],"What development contribution per business unit was proposed?",["5k","10k","25k","100k"],2,"About 25k per business unit, to enable system adjustments."],
+ [["meeting"],"How detailed should a business case be?",["As detailed as possible every time","Proportional to the initiative’s value and complexity","None for any initiative","Only a slide"],1,"The example of ending a 100k contract can be simple."],
+ [["meeting","l2"],"What was cautioned about at the kickoff?",["Double-counting initiatives already in the budget or in execution","Using too many KPIs","Training too many users","Starting too early"],0,"This is the idea behind L2 test 8."],
+ [["meeting"],"How will training be rolled out?",["The Dutch team trains everyone","Expert users are trained first and then train within their own organisations","No training is needed","External consultants only"],1,"The Dutch team can help set up experts but cannot train everyone."],
+ [["meeting","types"],"In the demo, which type was chosen for the €6K high-pressure cleaner?",["Revenue generation","Cost saving (an operating expenditure reduction)","Non-financial","Cost avoidance"],1,"It was entered as a cost saving with roughly 30K per year."],
+ [["big"],"Which two phases does the process diagram show?",["Bottom-up planning and Implementation","Ideation and Finance","Discovery and Delivery","Plan and Audit"],0,"Planning runs through L3, and Implementation covers L4 and L5."]
+];
+/* ---------- gate sorter ---------- */
+var GATEQ=[
+ ["Pick the initiative type.","L1"],["Attach the business case checked against the 10 tests.","L2"],["Plan a milestone every 1 to 2 weeks.","L3"],
+ ["Upload proof that the money step is done.","L4"],["Provide run-rate evidence over two cycles.","L5"],["The initiative owner accepts ownership.","L1"],
+ ["Assess the FTE impact and tell TO / HR.","L3"],["Fully fill the monthly financial impact per impact line.","L2"],["Check with the Sponsor in advance.","L3"],
+ ["Define the method and owner for tracking value, for L5.","L4"],["Log new initiatives that came out of this one.","L5"],["Give an estimated yearly value in k€ and mark it recurring or one-time.","L1"],
+ ["The Workstream Lead confirms safeguards against value leakage.","L4"],["Explain every variance versus L4.","L5"],["Write a From – To description with value assumptions.","L2"],
+ ["Add a risk-assessment milestone for safety or legal risks.","L3"]
+];
+var TYPEQ=[
+ ["Cancel an external cleaning contract and insource with a €6K machine. Operating costs fall versus Actual 2024.","Cost saving","The cost level improves compared to the baseline."],
+ ["Postpone a budgeted compressor purchase to next year.","Cost avoidance","Postponing or not spending budgeted costs is an avoidance."],
+ ["Raise the energy surcharge on customers.","Revenue generation","Additional revenue versus the Actual 2024 baseline."],
+ ["Introduce an invoice completeness control that bills items that used to be missed.","Revenue generation","It is listed as an example of revenue generation."],
+ ["Standardise onboarding to improve safety culture. It cannot be quantified.","Non-financial","A supporting initiative without a direct or quantifiable financial impact."],
+ ["Renegotiate a supplier rate so invoices drop below Actual 2024.","Cost saving","An improvement versus the baseline."],
+ ["Apply value-based pricing to a service.","Revenue generation","Listed as an example of revenue generation."],
+ ["Decide not to spend on an upgrade that the budget included.","Cost avoidance","The decision not to spend budgeted cost is an avoidance."]
+];
+/* ---------- simulator ---------- */
+var SIM=[
+ {g:0,ctx:"Story: the maintenance team wants to insource cleaning by buying a high-pressure cleaner for €6K. It comes from the kickoff demo. You are the initiative owner.",q:"You have the idea. What is the best first move?",o:["Run a quick effort-versus-benefit sound-check, then enter it in MyInitiative","Write a full financial model before telling anyone","Wait for approval from the Workstream Lead before entering anything","Enter it as L5 because it is obviously good"],a:0,w:"L0 needs no approval. The kickoff advice was to sound-check first, then enter viable ideas."},
+ {g:1,q:"Time to fill in the initiative type for the cleaner. Which fits best?",o:["Cost saving","Cost avoidance","Revenue generation","Non-financial"],a:0,w:"Operating costs go down versus the Actual 2024 baseline, so it is a cost saving."},
+ {g:1,q:"You expect roughly €30,000 per year. What do you enter?",o:["30 (in k€), mark Recurring, and add a description of how you derived it","30000, mark One-time","Leave blank for now","30 and describe it as non-financial"],a:0,w:"The field is in k€. It is a recurring benefit and the description is mandatory to reach L1."},
+ {g:2,q:"For L2, how heavy should the business case be?",o:["A simple case, such as a historical spend analysis, attached with its assumptions","A multi-tab model with a sensitivity table","A verbal explanation","None at all, the saving is obvious"],a:0,w:"The kickoff said to keep it proportional. The demo used a simple historical spend analysis of about 24K per year, 2K per month and 6K of implementation costs."},
+ {g:2,q:"Test 5: the cleaner costs 6K and saves 2K a month. Does it pass the 24-month check?",o:["Yes, payback is about 3 months","No, payback is 24 months","Only if the saving is one-time","The test does not apply"],a:0,w:"6K ÷ 2K per month is 3 months, well inside the 24-month window. Also check the phasing."},
+ {g:2,q:"Who must approve L2?",o:["Workstream Lead and Finance approver","TO approver and Sponsor","Only the Workstream Owner","Nobody, it is self-service"],a:0,w:"L2 needs the Workstream Lead (business case with the 10 tests) and the Finance approver (reasonableness, value, timing)."},
+ {g:3,q:"You plan the rollout. Which milestone cadence is acceptable?",o:["A milestone every 1 to 2 weeks","One milestone, “Done”, at the end","A milestone every 8 weeks","Only a start and an end date"],a:0,w:"Plan a milestone at least every 2 to 4 weeks, usually 1 to 2 weeks apart."},
+ {g:3,q:"What should you do before submitting to L3?",o:["Check in advance with the Sponsor, validate with the WS Lead and Finance, then submit","Submit and see who objects","Ask HR to submit it","Skip the Sponsor because it is small"],a:0,w:"The L3 sign-off chain includes Finance, Sponsor, WS Lead and TO, and the TO approver checks quality."},
+ {g:4,ctx:"Assume the external cleaning contract is cancelled and the machine is delivered. The first cheaper month has not yet happened.",q:"Can you submit for L4?",o:["Yes. Upload proof of the money step, finish the essential milestones and define who tracks value for L5","No. L4 needs two months of savings","Yes, with no proof needed","No. L4 needs Finance to run a review first"],a:0,w:"L4 is the bankable step: fully executed, with proof such as a contract change. Evidence of savings in the numbers is the L5 job."},
+ {g:4,q:"Delivery slips two weeks, so the monthly saving is slightly lower. The contract and core assumptions are unchanged. What now?",o:["Re-forecast the impact monthly with Finance, without moving back a stage","Move the initiative back to L2","Delete and recreate it","Do nothing and hope"],a:0,w:"Re-forecasting does not require moving back. Only revise the stage when core validation assumptions change."},
+ {g:5,q:"Savings are monthly. What does Finance need to see for L5?",o:["At least 2 months of logged impact at the expected run-rate, with evidence such as invoices","One invoice","A promise from the owner","12 months, always"],a:0,w:"Two cycles or 6 months, whichever is shorter. For a monthly item that is 2 months."},
+ {g:5,q:"Last step: what else belongs in your L5 submission?",o:["Variances versus L4 explained, and any new initiatives from this one logged","Nothing more","Delete the milestones","Increase the baseline"],a:0,w:"The owner also verifies all benefits and costs and makes sure actuals and KPIs are updated monthly."}
+];
+/* ---------- badges ---------- */
+var BADGES=[
+ ["Starter","Earn your first XP","S",function(){return S.xp>0}],
+ ["Explorer","Visit every module","E",function(){return Object.keys(S.seen).length>=MODS.length}],
+ ["Gate Scholar","Study all six gates in the Gate Lab","G",function(){return GATES.every(function(g){return S.ck["g"+g.id+"done"]})}],
+ ["Test Pilot","Score 8 or more in the 10-tests audit","T",function(){return(S.best.audit||0)>=80}],
+ ["Sharp Shooter","Get 100% in any 10-question quiz","Q",function(){return(S.best.perfect||0)>=1}],
+ ["Matchmaker","Finish both matching games","M",function(){return S.done.roles&&S.done.evidence}],
+ ["Simulator Pilot","Reach L5 in the simulator","P",function(){return S.done.sim}],
+ ["Card Shark","Mark 30 flashcards as known","C",function(){return Object.keys(S.cards).filter(function(k){return S.cards[k]}).length>=30}],
+ ["Boss Slayer","Score 80% or more on the Boss Exam","B",function(){return(S.best.boss||0)>=80}]
+];
+function checkBadges(){BADGES.forEach(function(b){if(!S.badges[b[0]]&&b[3]()){S.badges[b[0]]=1;save();confetti();toast("Badge unlocked: "+b[0])}})}
+/* ================= GENERIC ENGINES ================= */
+function prepQ(q){var idx=q.o.map(function(_,k){return k});if(!q.fixed)idx=shuffle(idx);var c=q.o[q.a];var o=idx.map(function(k){return q.o[k]});return Object.assign({},q,{o:o,a:o.indexOf(c)})}
+function trackHtml(active){return'<div class="track" role="img" aria-label="Current gate L'+active+'">'+GATES.map(function(g){return'<div class="tnode'+(g.id===active?" act":"")+(g.id<active?" done":"")+'"><span class="c lv'+g.id+'">'+g.code+'</span><small>'+g.name+'</small></div>'}).join("")+'</div>'}
+function runQuiz(root,cfg){
+  var qs=cfg.questions.map(prepQ),i=0,score=0,hearts=3,missed=[];
+  function end(){
+    var pct=Math.round(score/qs.length*100),sim=!!cfg.sim;
+    if(cfg.key){S.best[cfg.key]=Math.max(S.best[cfg.key]||0,pct)}
+    if(qs.length>=10&&score===qs.length&&!sim){S.best.perfect=(S.best.perfect||0)+1}
+    save();
+    var msg=pct===100?"Flawless.":pct>=80?"Strong. You know this.":pct>=60?"Solid. Review the misses below.":"Good start. Study the misses and try again.";
+    if(pct>=80||sim)confetti();
+    root.innerHTML='<div class="card qwrap"><div class="mono">'+esc(cfg.title)+' · complete</div><div class="big-score">'+(sim?'L5':pct+'%')+'</div><h3>'+(sim?"Your initiative reached L5 with "+hearts+" of 3 hearts left.":score+" of "+qs.length+" correct. "+msg)+'</h3>'+
+      (missed.length?'<div class="qwrap"><h4>Review these</h4>'+missed.map(function(m){return'<div class="fb bad"><b>'+esc(m.q)+'</b><br>Answer: '+esc(m.o[m.a])+'<br><span class="sm">'+esc(m.w)+'</span></div>'}).join("")+'</div>':"")+
+      '<div class="row"><button class="btn" id="again">Play again</button>'+(missed.length&&!sim?'<button class="btn gold" id="retry">Retry the misses</button>':"")+'<button class="btn ghost" id="back">Back</button></div></div>';
+    missed.forEach(function(m){if(S.missed.indexOf(m.q)<0)S.missed.push(m.q)});save();
+    if(cfg.done)cfg.done({pct:pct,score:score,hearts:hearts});
+    checkBadges();
+    $("#again",root).onclick=function(){runQuiz(root,Object.assign({},cfg,{questions:cfg.restart?cfg.restart():cfg.questions}))};
+    var r=$("#retry",root);if(r)r.onclick=function(){runQuiz(root,Object.assign({},cfg,{key:null,questions:missed.map(function(m){return{q:m.q,o:m.o,a:m.a,w:m.w,fixed:true}})}))};
+    $("#back",root).onclick=function(){cfg.back?cfg.back():go("quiz")};
+  }
+  function show(){
+    var q=qs[i],answered=false;
+    root.innerHTML='<div class="card qwrap">'+
+      '<div class="sp"><span class="mono">'+esc(cfg.title)+' · '+(i+1)+' / '+qs.length+'</span>'+(cfg.sim?'<span class="hearts" aria-label="Hearts">'+"♥".repeat(hearts)+"♡".repeat(3-hearts)+'</span>':'<span class="mono">'+score+' correct</span>')+'</div>'+
+      '<div class="prog"><b style="width:'+(i/qs.length*100)+'%"></b></div>'+
+      (cfg.sim?trackHtml(q.g):'')+(q.ctx?'<div class="ctx">'+esc(q.ctx)+'</div>':'')+
+      '<div class="qtext">'+esc(q.q)+'</div>'+
+      '<div class="opts">'+q.o.map(function(o,k){return'<button class="opt" data-k="'+k+'"><span class="k">'+String.fromCharCode(65+k)+'</span><span>'+esc(o)+'</span></button>'}).join("")+'</div>'+
+      '<div id="fbk"></div></div>';
+    $$(".opt",root).forEach(function(b){b.onclick=function(){
+      if(answered)return;answered=true;var k=+b.dataset.k,ok=k===q.a;
+      $$(".opt",root).forEach(function(x){x.disabled=true;if(+x.dataset.k===q.a)x.classList.add("right")});
+      if(ok){score++;addXP(cfg.sim?15:10)}else{b.classList.add("wrong","shake");missed.push(q);if(cfg.sim){hearts=Math.max(0,hearts-1)}}
+      $("#fbk",root).innerHTML='<div class="fb '+(ok?"good":"bad")+'"><b>'+(ok?"Correct. ":"Not quite. ")+'</b>'+esc(q.w)+'</div><div class="row" style="margin-top:12px"><button class="btn" id="nx">'+(i+1<qs.length?"Next":"Finish")+'</button></div>';
+      var nx=$("#nx",root);nx.focus();nx.onclick=function(){i++;i<qs.length?show():end()};
+    }});
+  }
+  show();
+}
+function matchGame(root,pairs,key,title,desc){
+  var L=pairs.map(function(p,i){return{i:i,t:p[0]}}),R=shuffle(pairs.map(function(p,i){return{i:i,t:p[1]}})),sel=null,miss=0,solved=0;
+  root.innerHTML='<div class="card qwrap"><div class="sp"><div><h3>'+esc(title)+'</h3><p class="sm">'+esc(desc)+'</p></div><span class="mono" id="mc">0 / '+pairs.length+' matched</span></div><div class="match"><div class="mcol" id="lc"></div><div class="mcol" id="rc"></div></div><div id="mres"></div></div>';
+  L.forEach(function(x){var b=document.createElement("button");b.className="mitem";b.textContent=x.t;b.dataset.i=x.i;$("#lc",root).appendChild(b)});
+  R.forEach(function(x){var b=document.createElement("button");b.className="mitem";b.textContent=x.t;b.dataset.i=x.i;$("#rc",root).appendChild(b)});
+  $$(".mitem",root).forEach(function(b){b.onclick=function(){
+    if(b.classList.contains("ok"))return;
+    var left=b.parentNode.id==="lc";
+    if(left){$$("#lc .mitem",root).forEach(function(x){x.classList.remove("sel")});sel=b;b.classList.add("sel");return}
+    if(!sel){toast("Pick a left item first");return}
+    if(sel.dataset.i===b.dataset.i){sel.classList.remove("sel");sel.classList.add("ok");b.classList.add("ok");sel=null;solved++;addXP(5);$("#mc",root).textContent=solved+" / "+pairs.length+" matched";
+      if(solved===pairs.length){S.done[key]=1;save();confetti();$("#mres",root).innerHTML='<div class="fb good"><b>All matched with '+miss+' miss'+(miss===1?"":"es")+'.</b></div><div class="row" style="margin-top:12px"><button class="btn" id="mr">Shuffle again</button></div>';$("#mr",root).onclick=function(){matchGame(root,pairs,key,title,desc)};checkBadges()}}
+    else{miss++;b.classList.add("shake");setTimeout(function(){b.classList.remove("shake")},400)}
+  }});
+}
+/* ================= MODULES ================= */
+var MODS=[
+ {id:"home",t:"Start here",r:home},{id:"map",t:"Big picture",r:bigPicture},{id:"gates",t:"Gate Lab",r:gateLab},{id:"types",t:"Initiative types",r:typesMod},
+ {id:"tests",t:"The 10 tests",r:testsMod},{id:"l45",t:"Money: L4 and L5",r:l45Mod},{id:"roles",t:"Roles and rules",r:rolesMod},
+ {id:"sim",t:"Simulator",r:simMod},{id:"quiz",t:"Quiz arena",r:quizMod},{id:"cards",t:"Flashcards",r:cardsMod},{id:"cheat",t:"Cheat sheet",r:cheatMod}
+];
+var cur="home";
+function go(id){cur=id;S.seen[id]=1;save();try{history.replaceState(null,"","#"+id)}catch(e){}paintRail();var m=MODS.filter(function(x){return x.id===id})[0];var main=document.getElementById("main");main.innerHTML="";var v=document.createElement("div");v.className="view";main.appendChild(v);m.r(v);window.scrollTo({top:0});checkBadges()}
+function paintRail(){document.getElementById("rail").innerHTML=MODS.map(function(m){return'<button data-m="'+m.id+'" '+(m.id===cur?'aria-current="page"':"")+'><span class="dot'+(S.seen[m.id]?" on":"")+'">'+(S.seen[m.id]?"✓":"")+'</span>'+m.t+'</button>'}).join("");$$("#rail button").forEach(function(b){b.onclick=function(){go(b.dataset.m)}})}
+function head(t,l){return'<div class="sec-title"><h2>'+t+'</h2><p class="lede">'+l+'</p></div>'}
+/* ---- home ---- */
+function home(v){
+  var r=rankInfo(),n=Object.keys(S.seen).length;
+  v.innerHTML='<div class="hero"><div class="qwrap" style="gap:18px"><span class="mono">MyInitiative · Transformation stage gate process</span><h1>Learn the funnel until you can <em>teach it</em>.</h1><p class="lede">Eleven modules built from the Sep 2026 L-stage-gate deck, the Nov 2025 L-gate training and the Introduction MyI & Qlik kickoff notes. Every gate, approver, test and number, with games, a simulator and a boss exam.</p><div class="row"><button class="btn gold" id="s1">Start with the big picture</button><button class="btn ghost" id="s2">Jump to the quiz arena</button></div></div><div class="funnel" id="fun"></div></div>'+
+  '<div class="grid g3"><div class="card"><div class="mono">Your rank</div><h3>'+esc(r.name)+'</h3><p class="sm">'+S.xp+' XP. Earn XP from quizzes, matching games and the simulator.</p></div><div class="card"><div class="mono">Modules visited</div><h3>'+n+' of '+MODS.length+'</h3><p class="sm">Ticks in the left menu show where you have been.</p></div><div class="card"><div class="mono">Questions to review</div><h3>'+S.missed.length+'</h3><p class="sm">Missed questions are saved. Revisit them in the Quiz arena.</p></div></div>'+
+  '<div class="card"><h3>Suggested path</h3><ul class="clean" style="margin-top:10px"><li><b>Big picture</b> → <b>Gate Lab</b>. Tick every requirement you can explain.</li><li><b>Initiative types</b> and <b>The 10 tests</b>. They are the heart of L1 and L2.</li><li><b>Money: L4 and L5</b> and <b>Roles and rules</b>.</li><li>Run the <b>Simulator</b>, then drill with <b>Flashcards</b> and take the <b>Boss Exam</b>.</li></ul></div>'+
+  '<div class="card"><h3>Badges</h3><div class="badges" style="margin-top:12px" id="bd"></div></div>'+
+  '<p class="tag-src">Progress is saved in this browser only. Content comes from three source files. The 69-minute meeting recording was not transcribed, so meeting facts come from the Gemini notes of the same session, which Gemini itself says should be reviewed for accuracy.</p>';
+  $("#s1",v).onclick=function(){go("map")};$("#s2",v).onclick=function(){go("quiz")};
+  var w=[100,86,72,60,48,38];
+  $("#fun",v).innerHTML=GATES.map(function(g,i){return'<button class="fbar lv'+g.id+'" style="width:'+w[i]+'%" data-g="'+g.id+'"><b>'+g.code+'</b>'+g.name+'</button>'}).join("");
+  $$(".fbar",v).forEach(function(b){b.onclick=function(){S.ck.sel=+b.dataset.g;save();go("gates")}});
+  $("#bd",v).innerHTML=BADGES.map(function(b){var on=S.badges[b[0]];return'<div class="badge'+(on?"":" lock")+'"><div class="ic">'+b[2]+'</div><b>'+b[0]+'</b><small>'+b[1]+'</small></div>'}).join("");
+}
+/* ---- big picture ---- */
+function bigPicture(v){
+  var sel=S.ck.sel||2;
+  v.innerHTML=head("The big picture","An initiative walks six gates. The first four are bottom-up planning. The last two are implementation and proof. Click a gate for the one-line story.")+
+  '<div class="card"><div class="row" style="justify-content:space-between"><span class="chip">Bottom-up planning: L0 to L3</span><span class="chip">Implementation: L4 and L5</span></div><div id="trk" style="margin-top:12px"></div><div id="gdet" class="qwrap" style="margin-top:12px"></div></div>'+
+  '<div class="card"><div class="sp"><div><h3>Approval matrix</h3><p class="sm">A = approves · S = prepares and submits · click a role to highlight its column.</p></div></div><div class="mx" style="margin-top:10px"><table id="mx"></table></div><p class="sm" style="margin-top:10px">Sources differ slightly on L3. The process diagram lists Workstream Owner, WS Lead, TO approver and Finance approver, while the L3 checklist adds the Sponsor, and the kickoff notes mention the workstream owner and transformation officer. Treat all of them as part of the L3 sign-off chain and confirm local naming with your Transformation Office.</p></div>'+
+  '<div class="grid g2"><div class="card"><h3>The weekly rhythm</h3><ul class="clean" style="margin-top:10px"><li>Update the <b>weekly status</b> with clear next steps. It is input for the TO meeting.</li><li>Update <b>milestone status</b> whenever it changes.</li><li>Update <b>monthly actuals and forecast</b> on the Financial Impact screen once you are in implementation.</li></ul></div><div class="card"><h3>One-sentence summary</h3><p style="margin-top:10px">Idea, size it, prove the business case, plan the milestones, execute and bank it, then show the money arriving.</p></div></div>';
+  function draw(){
+    $("#trk",v).innerHTML='<div class="track">'+GATES.map(function(g){return'<button class="tnode'+(g.id===sel?" act":"")+'" data-g="'+g.id+'"><span class="c lv'+g.id+'">'+g.code+'</span><small>'+g.name+'</small></button>'}).join("")+'</div>';
+    var g=GATES[sel];
+    $("#gdet",v).innerHTML='<div class="row"><span class="lv lv'+g.id+'">'+g.code+'</span><h3>'+g.name+'</h3><span class="chip">'+g.phase+'</span></div><p>'+g.line+'</p><div class="row"><span class="mono">Approvals</span>'+(g.appr.length?g.appr.map(function(a){return'<span class="chip ap">'+a+'</span>'}).join(""):'<span class="chip none">No approval required</span>')+'</div><div class="tip">'+g.tip+'</div><div class="row"><button class="btn" id="dd">Study '+g.code+' in the Gate Lab</button></div>';
+    $$(".tnode",v).forEach(function(b){b.onclick=function(){sel=+b.dataset.g;draw()}});
+    $("#dd",v).onclick=function(){S.ck.sel=sel;save();go("gates")};
+  }
+  draw();
+  var hl=-1;
+  function mx(){var t='<tr><th></th>'+MATRIX.cols.map(function(c,i){return'<th class="'+(hl===i?"hl":"")+'"><button data-c="'+i+'">'+c+'</button></th>'}).join("")+'</tr>';
+    MATRIX.rows.forEach(function(r){t+='<tr><td><span class="lv lv'+r[0][1]+'">'+r[0]+'</span></td>'+r[1].map(function(c,i){return'<td class="'+(hl===i?"hl":"")+'">'+(c?'<span class="cell'+c+'">'+c+'</span>':'')+'</td>'}).join("")+'</tr>'});
+    $("#mx",v).innerHTML=t;$$("#mx th button",v).forEach(function(b){b.onclick=function(){hl=hl===+b.dataset.c?-1:+b.dataset.c;mx()}})}
+  mx();
+}
+/* ---- gate lab ---- */
+function gateLab(v){
+  var sel=S.ck.sel!=null?S.ck.sel:1;
+  v.innerHTML=head("Gate Lab","One gate at a time. Tap each requirement to expand the reason, then tick it once you could explain it to a colleague. Study all six to earn the Gate Scholar badge.")+'<div class="card"><div id="trk"></div></div><div id="body" class="card"></div>';
+  function pct(g){var n=0,t=0;g.groups.forEach(function(gr,a){gr.items.forEach(function(it,b){t++;if(S.ck["c"+g.id+"_"+a+"_"+b])n++})});return[n,t]}
+  function draw(){
+    var g=GATES[sel];
+    $("#trk",v).innerHTML='<div class="track">'+GATES.map(function(x){var p=pct(x);return'<button class="tnode'+(x.id===sel?" act":"")+(p[0]===p[1]?" done":"")+'" data-g="'+x.id+'"><span class="c lv'+x.id+'">'+x.code+'</span><small>'+p[0]+'/'+p[1]+'</small></button>'}).join("")+'</div>';
+    var p=pct(g);
+    var h='<div class="row"><span class="lv lv'+g.id+'">'+g.code+'</span><h3>'+g.name+'</h3><span class="chip">'+g.phase+'</span><span class="mono" style="margin-left:auto">'+p[0]+' of '+p[1]+' understood</span></div><p style="margin-top:8px">'+g.line+'</p>'+
+    '<div class="row" style="margin:10px 0"><span class="mono">Approvals</span>'+(g.appr.length?g.appr.map(function(a){return'<span class="chip ap">'+a+'</span>'}).join(""):'<span class="chip none">No approval required</span>')+'</div>';
+    g.groups.forEach(function(gr,a){
+      h+='<div class="group-h">'+(gr.sb?'<span class="sb">'+gr.sb+'</span>':'')+'<h4>'+gr.t+'</h4><span class="own" style="margin-left:0">'+gr.own+'</span></div><div class="ck">';
+      gr.items.forEach(function(it,b){var id="c"+g.id+"_"+a+"_"+b,on=S.ck[id];
+        h+='<label class="'+(on?"on":"")+'"><input type="checkbox" data-id="'+id+'" '+(on?"checked":"")+'><span>'+esc(it[0])+(it[1]?'<span class="hint">'+esc(it[1])+'</span>':'')+'</span></label>'});
+      h+='</div>';
+    });
+    h+='<div class="grid g2" style="margin-top:18px"><div class="trap"><b>Common traps</b><ul class="clean" style="margin-top:6px">'+g.traps.map(function(t){return'<li>'+esc(t)+'</li>'}).join("")+'</ul></div><div class="tip"><b>Remember</b><p style="margin-top:6px">'+esc(g.tip)+'</p></div></div>';
+    h+='<div class="row" style="margin-top:16px">'+(sel>0?'<button class="btn ghost" id="pv">Previous gate</button>':'')+(sel<5?'<button class="btn" id="nx">Next gate</button>':'<button class="btn gold" id="qz">Quiz me on the gates</button>')+'</div>';
+    $("#body",v).innerHTML=h;
+    $$(".tnode",v).forEach(function(b){b.onclick=function(){sel=+b.dataset.g;S.ck.sel=sel;save();draw()}});
+    $$("#body input",v).forEach(function(i){i.onchange=function(){S.ck[i.dataset.id]=i.checked;var q=pct(g);if(q[0]===q[1]&&!S.ck["g"+g.id+"done"]){S.ck["g"+g.id+"done"]=1;addXP(20,g.code+" mastered");confetti()}save();checkBadges();draw()}});
+    var pv=$("#pv",v),nx=$("#nx",v),qz=$("#qz",v);
+    if(pv)pv.onclick=function(){sel--;draw();window.scrollTo({top:0})};
+    if(nx)nx.onclick=function(){sel++;draw();window.scrollTo({top:0})};
+    if(qz)qz.onclick=function(){go("quiz")};
+  }
+  draw();
+}
+/* ---- types ---- */
+function typesMod(v){
+  v.innerHTML=head("Initiative types","The type is a required field at L1. It decides whether you must size a yearly value, and which baseline you measure against.")+
+  '<div class="grid g2" id="tc"></div><div class="card"><h3>Baselines at a glance</h3><div class="mx"><table style="margin-top:8px"><tr><th>Type</th><th>Baseline</th><th>Yearly value?</th></tr><tr><td>Cost saving (Opex)</td><td>Actual 2024</td><td>Yes, in k€</td></tr><tr><td>Cost saving (Suscap)</td><td>3YMP 2025</td><td>Yes, in k€</td></tr><tr><td>Cost avoidance</td><td>Budgeted costs</td><td>Yes, in k€</td></tr><tr><td>Revenue generation</td><td>Actual 2024</td><td>Yes, in k€</td></tr><tr><td>Non-financial</td><td>None</td><td>No, describe the result</td></tr><tr><td>Balance sheet improvement</td><td colspan="2">Listed as a financial type in the Sep 2026 deck, with no definition given. Ask your Finance approver.</td></tr></table></div></div>'+
+  '<div class="card"><h3>Type sorter</h3><p class="sm">Which type fits each scenario?</p><div id="g" style="margin-top:12px"></div></div>';
+  var T=[["Cost saving","An initiative that leads to an improvement of our cost level compared to the baseline.","For Opex the baseline is Actual 2024, for Suscap the 3YMP 2025."],["Cost avoidance","An initiative that prevents additional costs from being incurred compared to the baseline.","The decision not to spend or to postpone budgeted costs is an avoidance."],["Revenue generation","An initiative that generates additional revenue compared to the baseline, Actual 2024.","New service, higher energy surcharge, invoice completeness control, value-based pricing."],["Non-financial","A supporting initiative that has a positive effect on the objectives.","No direct financial impact, or the saving cannot be quantified. Leave the value empty, but describe the result."]];
+  $("#tc",v).innerHTML=T.map(function(t){return'<button class="flip" aria-label="Flip '+t[0]+'"><div class="in"><div class="fc"><span class="mono">Tap to flip</span><h3>'+t[0]+'</h3><p>'+t[1]+'</p></div><div class="bc"><h4>Remember</h4><p>'+t[2]+'</p></div></div></button>'}).join("");
+  $$(".flip",v).forEach(function(b){b.onclick=function(){b.classList.toggle("f")}});
+  var names=["Cost saving","Cost avoidance","Revenue generation","Non-financial"];
+  runQuiz($("#g",v),{title:"Type sorter",key:"types",questions:TYPEQ.map(function(t){return{q:t[0],o:names,a:names.indexOf(t[1]),w:t[2],fixed:true}}),back:function(){go("types")}});
+}
+/* ---- tests ---- */
+function testsMod(v){
+  v.innerHTML=head("The 10 tests","Workstream Leads and Finance approvers apply these before validating an L2. You apply them first. The answers must be findable entirely in MyInitiative, and the depth scales with the size of the initiative.")+
+  '<div class="grid g2" id="tc"></div>'+
+  '<div class="card"><h3>Payback lab (test 5)</h3><p class="sm">The test asks whether the initiative covers its implementation costs within 24 months. Try the cleaner from the demo: 6K cost, 2K a month.</p><div class="row" style="margin-top:12px"><div class="field"><label for="pc">Implementation cost (k€)</label><input id="pc" type="number" min="0" value="6"></div><div class="field"><label for="pm">Monthly saving (k€)</label><input id="pm" type="number" min="0" step="0.5" value="2"></div><div class="field"><label for="pd">Months until savings start</label><input id="pd" type="number" min="0" value="0"></div></div><div id="pr" style="margin-top:14px" class="qwrap"></div></div>'+
+  '<div class="card"><h3>Audit the business case</h3><p class="sm">Ten flawed business cases. Name the test each one fails.</p><div id="au" style="margin-top:12px"></div></div>';
+  $("#tc",v).innerHTML=TESTS.map(function(t,i){return'<button class="flip" aria-label="Flip test '+(i+1)+'"><div class="in"><div class="fc"><span class="mono">Test '+(i+1)+' · tap to flip</span><h3>'+t[0]+'</h3><p>'+t[1]+'</p></div><div class="bc"><h4>What failing looks like (illustration)</h4><p>'+t[2]+'</p></div></div></button>'}).join("");
+  $$(".flip",v).forEach(function(b){b.onclick=function(){b.classList.toggle("f")}});
+  function pay(){var c=+$("#pc",v).value||0,m=+$("#pm",v).value||0,d=+$("#pd",v).value||0;var months=m>0?d+c/m:Infinity,ok=months<=24,w=isFinite(months)?Math.min(100,months/36*100):100;
+    $("#pr",v).innerHTML='<div class="pb" role="img" aria-label="Payback bar"><div class="fill" style="width:'+w+'%;background:'+(ok?"var(--ok)":"var(--bad)")+'"></div><div class="mark" style="left:'+(24/36*100)+'%"></div><div class="lab">'+(isFinite(months)?months.toFixed(1)+" months":"never")+'</div></div><div class="row sm"><span>0</span><span style="margin-left:auto">Marker at 24 months · scale ends at 36</span></div><div class="fb '+(ok?"good":"bad")+'"><b>'+(ok?"Passes the 24-month check on this metric.":"Fails the 24-month check.")+'</b> Payback ≈ '+(isFinite(months)?months.toFixed(1):"∞")+' months. Test 5 also asks whether the impact is correctly phased over time.</div>'}
+  ["pc","pm","pd"].forEach(function(id){$("#"+id,v).oninput=pay});pay();
+  var names=TESTS.map(function(t){return t[0]});
+  var mk=function(){return shuffle(TESTCASES).map(function(c){var wrong=shuffle(names.filter(function(n,i){return i!==c[1]})).slice(0,3);return{q:c[0],o:[names[c[1]]].concat(wrong),a:0,w:"This fails test "+(c[1]+1)+", “"+names[c[1]]+"”: "+TESTS[c[1]][1]}})};
+  runQuiz($("#au",v),{title:"Audit game",key:"audit",questions:mk(),restart:mk,back:function(){go("tests")}});
+}
+/* ---- L4 L5 ---- */
+function l45Mod(v){
+  v.innerHTML=head("Money: L4 and L5","L4 is the bankable step: the actions that create the money are done and proven. L5 is the proof that the money shows up and stays. The two together are where savings become real.")+
+  '<div class="grid g2"><div class="card"><span class="lv lv4">L4</span><h3 style="margin-top:8px">Fully implemented</h3><ul class="clean" style="margin-top:8px"><li>The money step is done, with proof.</li><li>No action beyond daily business is needed to continue the benefit.</li><li>Benefits come from the owner’s actions, not from outside events.</li></ul></div><div class="card"><span class="lv lv5">L5</span><h3 style="margin-top:8px">Sustainably validated</h3><ul class="clean" style="margin-top:8px"><li>Run-rate is shown for at least two cycles, or 6 months if shorter.</li><li>Evidence is in system data, invoices, headcount or payments.</li><li>No material deviation versus target.</li></ul></div></div>'+
+  '<div class="card"><h3>When does value capture start?</h3><p class="sm">Pick a scenario. The bar shows where money starts to flow compared with the L4 bankable step.</p><div class="tabs" id="vt" style="margin-top:10px"></div><div id="vb" style="margin-top:14px" class="qwrap"></div></div>'+
+  '<div class="card"><h3>L4 versus L5 milestones</h3><div class="tabs" id="mt" style="margin-top:10px"></div><div id="mb" class="grid g2" style="margin-top:14px"></div></div>'+
+  '<div class="card"><h3>L5 evidence window</h3><p class="sm">Finance needs two cycles of run-rate, or 6 months, whichever is shorter. Pick how often your item repeats.</p><div class="field" style="max-width:280px;margin-top:10px"><label for="cy">The benefit repeats every</label><select id="cy"><option value="1">Month</option><option value="3">Quarter</option><option value="6">Half year</option><option value="12">Year</option></select></div><div id="cyr" style="margin-top:12px"></div></div>'+
+  '<div class="card"><h3>L5 blockers</h3><p class="sm">Nine ways a claimed saving fails to hit the bottom line. Tap one for how to catch it. The “catch it” lines are suggestions for practice.</p><div class="grid g2" id="bl" style="margin-top:12px"></div></div>'+
+  '<div class="card"><div id="ev"></div></div>'+
+  '<div class="card"><h3>Re-forecasting without panic</h3><ul class="clean" style="margin-top:8px"><li>Planned impact is recorded at L3 approval and is not editable.</li><li>Record actuals monthly, with Finance confirming where necessary, and update the forecast monthly.</li><li>Work with Finance to understand variations, then update the forecast.</li><li><b>Do not move the initiative back a stage</b> unless core validation assumptions need to be revised.</li><li>If a milestone date change hits the critical path to L4, change the Workstream status to “some issues” or “Leadership attention” immediately.</li></ul></div>'+
+  '<div class="card"><h3>Practice: L4 or L5?</h3><div id="q45" style="margin-top:10px"></div></div>';
+  var vi=0;function vc(){
+    $("#vt",v).innerHTML=VC.map(function(s,i){return'<button class="tab" aria-pressed="'+(i===vi)+'" data-i="'+i+'">'+s.n+'</button>'}).join("");
+    var s=VC[vi];
+    $("#vb",v).innerHTML='<div class="vc"><div class="col">L3 execution</div><div class="col">L4 reached</div><div class="col">L5 validated</div></div><div class="vc"><div class="bar" style="grid-column:'+(s.start+1)+' / 4">Value capture</div></div><p>'+s.txt+'</p>';
+    $$("#vt .tab",v).forEach(function(b){b.onclick=function(){vi=+b.dataset.i;vc()}})}
+  vc();
+  var mi=0;function ml(){
+    $("#mt",v).innerHTML=MILEX.map(function(s,i){return'<button class="tab" aria-pressed="'+(i===mi)+'" data-i="'+i+'">'+s.n+'</button>'}).join("");
+    var s=MILEX[mi];
+    $("#mb",v).innerHTML='<div class="card flat"><span class="lv lv4">L4</span><ul class="clean" style="margin-top:8px">'+s.l4.map(function(x){return'<li>'+x+'</li>'}).join("")+'</ul></div><div class="card flat"><span class="lv lv5">L5</span><ul class="clean" style="margin-top:8px">'+s.l5.map(function(x){return'<li>'+x+'</li>'}).join("")+'</ul></div>';
+    $$("#mt .tab",v).forEach(function(b){b.onclick=function(){mi=+b.dataset.i;ml()}})}
+  ml();
+  function cy(){var c=+$("#cy",v).value,n=Math.min(2*c,6);$("#cyr",v).innerHTML='<div class="fb good"><b>Required: '+n+' months of logged run-rate.</b> Two cycles would be '+(2*c)+' month'+(2*c===1?"":"s")+(2*c>6?', which exceeds 6, so the 6-month cap applies.':".")+'</div>'}
+  $("#cy",v).onchange=cy;cy();
+  $("#bl",v).innerHTML=BLOCKERS.map(function(b){return'<button class="flip" aria-label="Flip blocker"><div class="in"><div class="fc"><span class="mono">Blocker · tap</span><p>'+b[0]+'</p></div><div class="bc"><h4>Catch it by</h4><p>'+b[1]+'</p></div></div></button>'}).join("");
+  $$("#bl .flip",v).forEach(function(b){b.onclick=function(){b.classList.toggle("f")}});
+  matchGame($("#ev",v),EVIDENCE,"evidence","Proof of financial impact","Match each type of impact with the evidence the deck suggests.");
+  var Q=[["The contract is signed and the new prices are loaded, awaiting the start date.","L4"],["New prices are in effect and invoices comply for at least one month.","L5"],["The old supplier is informed and the new supplier is qualified and loaded in the system.","L4"],["Payment for the asset sale is received, and property tax stops.","L5"],["Purchaser due diligence is complete and the sales contract is signed.","L4"],["Two months of logged impact for a monthly item, confirmed by Finance.","L5"],["A screenshot of the new contract uploaded to the Details screen.","L4"],["Sales at the new higher price realised during a full payment cycle.","L5"]];
+  runQuiz($("#q45",v),{title:"L4 or L5",key:"l45",questions:Q.map(function(q){return{q:q[0],o:["L4","L5"],a:q[1]==="L4"?0:1,w:q[1]==="L4"?"L4 is the bankable step: actions done and proven.":"L5 is proof that the value arrives and holds.",fixed:true}}),back:function(){go("l45")}});
+}
+/* ---- roles ---- */
+function rolesMod(v){
+  v.innerHTML=head("Roles and rules","Who does what, and the working rules from the kickoff.")+
+  '<div class="grid g2" id="rc"></div><div id="rm"></div>'+
+  '<div class="card"><h3>Gate sorter</h3><p class="sm">Which gate does each requirement belong to?</p><div id="gs" style="margin-top:12px"></div></div>'+
+  '<div class="card"><h3>Workstreams in a nutshell</h3><ul class="clean" style="margin-top:8px"><li>A functional grouping of initiatives, such as maintenance or customer service, aligned with the management structure and initiative volume.</li><li>Use the shared templates. Request new ones only when strictly necessary.</li><li>Do not create workstreams for departments or head office. Use location attributes.</li><li>Organisational remodelling goes under overhead, or within maintenance and capital systems.</li></ul></div>';
+  $("#rc",v).innerHTML=ROLES.map(function(r){return'<button class="flip" aria-label="Flip '+r[0]+'"><div class="in"><div class="fc"><span class="mono">Role · tap</span><h3>'+r[0]+'</h3></div><div class="bc"><p>'+r[1]+'</p></div></div></button>'}).join("");
+  $$("#rc .flip",v).forEach(function(b){b.onclick=function(){b.classList.toggle("f")}});
+  matchGame($("#rm",v),ROLES,"roles","Match the role","Link each role to what it does.");
+  var gs=["L1","L2","L3","L4","L5"];
+  var mk=function(){return shuffle(GATEQ).map(function(q){return{q:q[0],o:gs,a:gs.indexOf(q[1]),w:"This belongs at "+q[1]+".",fixed:true}})};
+  runQuiz($("#gs",v),{title:"Gate sorter",key:"gs",questions:mk(),restart:mk,back:function(){go("roles")}});
+}
+/* ---- simulator ---- */
+function simMod(v){
+  v.innerHTML=head("Initiative simulator","Take the €6K high-pressure cleaner from the kickoff demo from idea to validated money. Wrong choices cost hearts. You always reach the end, and you learn why.")+'<div id="sm"></div>';
+  runQuiz($("#sm",v),{title:"Simulator",sim:true,questions:SIM,back:function(){go("sim")},done:function(){S.done.sim=1;save();addXP(40,"Simulator complete")}});
+}
+/* ---- quiz arena ---- */
+function quizMod(v){
+  var sets=[["Quick 10","Random mix",null,10],["L1 and types","Sizing and types","l1",0],["L2 business case","Including the 10 tests","l2",0],["L3 plan","Milestones and approvals","l3",0],["L4 bankable","Implementation proof","l4",0],["L5 proof","Validation and evidence","l5",0],["Roles","Who approves what","roles",0],["Kickoff meeting","Practical rules","meeting",0],["Numbers","The key figures","num",0]];
+  v.innerHTML=head("Quiz arena","Pick a set. Each question explains the answer. Get 80% or more on the Boss Exam to earn the final badge.")+
+  '<div class="grid g3" id="qs"></div><div class="grid g2"><div class="card"><div class="mono">Final challenge</div><h3 style="margin:6px 0">Boss Exam</h3><p class="sm">25 random questions across everything. Best: '+(S.best.boss||0)+'%.</p><div class="row" style="margin-top:12px"><button class="btn gold" id="boss">Face the boss</button></div></div><div class="card"><div class="mono">Review</div><h3 style="margin:6px 0">Missed questions</h3><p class="sm">'+S.missed.length+' saved.</p><div class="row" style="margin-top:12px"><button class="btn" id="mis" '+(S.missed.length?"":"disabled")+'>Drill them</button><button class="btn ghost" id="clr" '+(S.missed.length?"":"disabled")+'>Clear</button></div></div></div><div id="qr"></div>';
+  function conv(r){return r.map(function(x){return{q:x[1],o:x[2],a:x[3],w:x[4]}})}
+  function pick(tag,n){var p=QB.filter(function(x){return!tag||x[0].indexOf(tag)>=0});p=shuffle(p);return n?p.slice(0,n):p}
+  $("#qs",v).innerHTML=sets.map(function(s,i){var c=s[2]?QB.filter(function(x){return x[0].indexOf(s[2])>=0}).length:QB.length;return'<button class="card" style="text-align:left" data-i="'+i+'"><div class="mono">'+(s[3]?"10 questions":c+" questions")+'</div><h3 style="margin:4px 0">'+s[0]+'</h3><p class="sm">'+s[1]+'</p></button>'}).join("");
+  function start(cfg){$("#qr",v).scrollIntoView({behavior:"smooth",block:"start"});runQuiz($("#qr",v),cfg)}
+  $$("#qs .card",v).forEach(function(b){b.onclick=function(){var s=sets[+b.dataset.i];var mk=function(){return conv(pick(s[2],s[3]))};start({title:s[0],key:"set"+b.dataset.i,questions:mk(),restart:mk,back:function(){go("quiz")}})}});
+  $("#boss",v).onclick=function(){var mk=function(){return conv(pick(null,25))};start({title:"Boss Exam",key:"boss",questions:mk(),restart:mk,back:function(){go("quiz")}})};
+  $("#mis",v).onclick=function(){var m=QB.filter(function(x){return S.missed.indexOf(x[1])>=0});S.missed=[];save();start({title:"Missed questions",questions:conv(shuffle(m)),back:function(){go("quiz")}})};
+  $("#clr",v).onclick=function(){S.missed=[];save();go("quiz")};
+}
+/* ---- flashcards ---- */
+function cardsMod(v){
+  var deck=QB.map(function(x,i){return{id:"q"+i,f:x[1],b:x[2][x[3]]+" — "+x[4],tags:x[0]}}).concat(TESTS.map(function(t,i){return{id:"t"+i,f:"Test "+(i+1)+" of the 10 tests: what does “"+t[0]+"” ask?",b:t[1],tags:["l2"]}}));
+  var filter="all",idx=0,flipped=false,q=[];
+  v.innerHTML=head("Flashcards","Flip, then say whether you knew it. Cards you miss come back first. Mark 30 as known for the Card Shark badge.")+'<div class="tabs" id="ft"></div><div id="fc" class="qwrap"></div>';
+  var tabs=[["all","All"],["l1","L1"],["l2","L2"],["l3","L3"],["l4","L4"],["l5","L5"],["roles","Roles"],["meeting","Meeting"],["num","Numbers"]];
+  function build(){q=deck.filter(function(c){return filter==="all"||c.tags.indexOf(filter)>=0});q=shuffle(q).sort(function(a,b){return(S.cards[a.id]?1:0)-(S.cards[b.id]?1:0)});idx=0;flipped=false;draw()}
+  function draw(){
+    $("#ft",v).innerHTML=tabs.map(function(t){return'<button class="tab" aria-pressed="'+(t[0]===filter)+'" data-f="'+t[0]+'">'+t[1]+'</button>'}).join("");
+    $$("#ft .tab",v).forEach(function(b){b.onclick=function(){filter=b.dataset.f;build()}});
+    var known=q.filter(function(c){return S.cards[c.id]}).length;
+    if(!q.length){$("#fc",v).innerHTML='<div class="card">No cards in this filter.</div>';return}
+    if(idx>=q.length){$("#fc",v).innerHTML='<div class="card qwrap"><h3>Deck finished</h3><p>'+known+' of '+q.length+' known.</p><div class="row"><button class="btn" id="rs">Restart</button></div></div>';$("#rs",v).onclick=build;return}
+    var c=q[idx];
+    $("#fc",v).innerHTML='<div class="sp"><span class="mono">Card '+(idx+1)+' of '+q.length+'</span><span class="mono">'+known+' known</span></div><div class="prog"><b style="width:'+(idx/q.length*100)+'%"></b></div><button class="card" id="cd" style="min-height:220px;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:12px"><span class="mono">'+(flipped?"Answer":"Question · tap to flip")+'</span><span class="qtext">'+esc(flipped?c.b:c.f)+'</span></button><div class="row"><button class="btn ghost" id="ag" '+(flipped?"":"disabled")+'>Again</button><button class="btn" id="gt" '+(flipped?"":"disabled")+'>Got it</button></div>';
+    $("#cd",v).onclick=function(){flipped=!flipped;draw()};
+    $("#ag",v).onclick=function(){S.cards[c.id]=false;save();idx++;flipped=false;draw()};
+    $("#gt",v).onclick=function(){if(!S.cards[c.id])addXP(2);S.cards[c.id]=true;save();checkBadges();idx++;flipped=false;draw()};
+  }
+  build();
+}
+/* ---- cheat sheet ---- */
+function cheatMod(v){
+  v.innerHTML=head("Cheat sheet","The whole process on one page, the numbers that matter, and what came out of the kickoff.")+
+  '<div class="card mx"><h3>The gates</h3><table style="margin-top:8px"><tr><th>Gate</th><th>What it means</th><th>Approvals</th><th>Key proof</th></tr>'+
+  [["L0","Idea entered","None","Idea in MyInitiative"],["L1","Sized","None","Owner, type, yearly value (k€), recurring or one-time, description"],["L2","Business case","WS Lead, Finance approver","Business case against the 10 tests, monthly financial impact"],["L3","Milestones planned","WS Owner, WS Lead, TO approver, Finance approver, Sponsor","Milestones every 2 to 4 weeks, risk milestone if needed, KPIs, stakeholders"],["L4","Implemented (money step)","WS Lead","Proof of the money step, milestones complete, tracking method"],["L5","Validated run-rate","Finance approver","Two cycles of run-rate (max 6 months), invoices or system data"]].map(function(r,i){return'<tr><td style="text-align:left"><span class="lv lv'+i+'">'+r[0]+'</span></td><td style="text-align:left">'+r[1]+'</td><td style="text-align:left">'+r[2]+'</td><td style="text-align:left">'+r[3]+'</td></tr>'}).join("")+'</table></div>'+
+  '<div><h3 style="margin-bottom:12px">By the numbers</h3><div class="grid g3" id="nm"></div></div>'+
+  '<div><h3 style="margin-bottom:12px">Straight from the kickoff</h3><div class="qwrap" style="gap:8px" id="rc"></div></div>'+
+  '<div class="card"><h3>What changed between Nov 2025 and Sep 2026</h3><ul class="clean" style="margin-top:8px" id="ch"></ul></div>'+
+  '<div class="card"><h3>Access request forms (Sep 2026 deck)</h3><ul class="clean" style="margin-top:8px"><li>Singapore: <a href="https://forms.gle/8w35ExAycCTemXSL9" target="_blank" rel="noopener">forms.gle/8w35ExAycCTemXSL9</a></li><li>US: <a href="https://forms.gle/BbxNKQnmXEZKPHQz5" target="_blank" rel="noopener">forms.gle/BbxNKQnmXEZKPHQz5</a></li><li>Brazil: <a href="https://forms.gle/MruQTEcQt4BSEcBD8" target="_blank" rel="noopener">forms.gle/MruQTEcQt4BSEcBD8</a></li><li>Belgium: the link is blank in the deck</li></ul></div>'+
+  '<div class="card"><h3>Open questions to raise</h3><ul class="clean" style="margin-top:8px"><li>What exactly counts as a “Balance sheet improvement”? The deck lists it without a definition.</li><li>Which approvers sign L3 in your organisation? The sources name slightly different sets.</li><li>The baseline wording still mentions 2024 and 2025. Confirm the current baseline year with Finance.</li></ul></div>';
+  $("#nm",v).innerHTML=NUMS.map(function(n){return'<button class="flip tcard" aria-label="Flip '+n[0]+'"><div class="in"><div class="fc"><span class="bignum">'+n[0]+'</span><b>'+n[1]+'</b><span class="mono">Tap for detail</span></div><div class="bc"><p>'+n[2]+'</p></div></div></button>'}).join("");
+  $$("#nm .flip",v).forEach(function(b){b.onclick=function(){b.classList.toggle("f")}});
+  $("#rc",v).innerHTML=RECAP.map(function(r){return'<details class="acc"><summary>'+r[0]+'</summary><div class="bd">'+r[1]+'</div></details>'}).join("");
+  $("#ch",v).innerHTML=CHANGES.map(function(c){return'<li><b>'+c[0]+'.</b> '+c[1]+'</li>'}).join("");
+}
+/* ---------- boot ---------- */
+(function(){
+  var t=document.getElementById("theme");
+  t.onclick=function(){var r=document.documentElement,d=r.getAttribute("data-theme");var dark=d?d==="dark":matchMedia("(prefers-color-scheme: dark)").matches;r.setAttribute("data-theme",dark?"light":"dark")};
+  paintTop();
+  var h=(location.hash||"").replace("#","");
+  var ok=MODS.some(function(m){return m.id===h});
+  go(ok?h:"home");
+})();
+</script>
+
+</body></html>
